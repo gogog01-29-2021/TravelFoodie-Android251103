@@ -31,11 +31,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    implementation(project(":core:sync"))
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-
+    
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
     

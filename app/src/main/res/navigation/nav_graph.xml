@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_trips">
+
+    <fragment
+        android:id="@+id/nav_trips"
+        android:name="com.travelfoodie.feature.trip.TripListFragment"
+        android:label="@string/nav_trips" />
+
+    <fragment
+        android:id="@+id/nav_attractions"
+        android:name="com.travelfoodie.feature.attraction.AttractionListFragment"
+        android:label="@string/nav_attractions" />
+
+    <fragment
+        android:id="@+id/nav_restaurants"
+        android:name="com.travelfoodie.feature.restaurant.RestaurantListFragment"
+        android:label="@string/nav_restaurants" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.travelfoodie.ProfileFragment"
+        android:label="@string/nav_profile" />
+
+</navigation>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TravelFoodie</string>
+    
+    <!-- Navigation -->
+    <string name="nav_trips">여행</string>
+    <string name="nav_attractions">명소</string>
+    <string name="nav_restaurants">맛집</string>
+    <string name="nav_profile">프로필</string>
+    
+    <!-- Trip -->
+    <string name="trip_list_title">내 여행</string>
+    <string name="trip_add">새 여행 추가</string>
+    <string name="trip_title">여행 제목</string>
+    <string name="trip_start_date">출발일</string>
+    <string name="trip_end_date">도착일</string>
+    <string name="trip_theme">여행 테마</string>
+    <string name="trip_members">함께 가는 사람</string>
+    <string name="trip_regions">여행지</string>
+    <string name="trip_save">저장</string>
+    <string name="trip_cancel">취소</string>
+    <string name="trip_edit">수정</string>
+    <string name="trip_delete">삭제</string>
+    <string name="trip_d_day">D-%d</string>
+    <string name="trip_d_day_today">D-Day</string>
+    
+    <!-- Theme -->
+    <string name="theme_active">액티브</string>
+    <string name="theme_culture">문화</string>
+    <string name="theme_relaxation">휴식</string>
+    <string name="theme_shopping">쇼핑</string>
+    <string name="theme_food">맛집 투어</string>
+    
+    <!-- Attraction -->
+    <string name="attraction_title">추천 명소</string>
+    <string name="attraction_top_5">TOP 5 명소</string>
+    <string name="attraction_loading">명소를 찾고 있습니다...</string>
+    
+    <!-- Restaurant -->
+    <string name="restaurant_title">추천 맛집</string>
+    <string name="restaurant_top_10">TOP 10 맛집</string>
+    <string name="restaurant_loading">맛집을 찾고 있습니다...</string>
+    <string name="restaurant_details">맛집 상세</string>
+    <string name="restaurant_menu">메뉴</string>
+    <string name="restaurant_hours">영업시간</string>
+    <string name="restaurant_reservable">예약 가능</string>
+    <string name="restaurant_distance">거리: %.1f km</string>
+    <string name="restaurant_rating">평점: %.1f</string>
+    <string name="restaurant_open_map">지도에서 보기</string>
+    
+    <!-- Voice -->
+    <string name="voice_command">음성 명령</string>
+    <string name="voice_listening">듣고 있습니다...</string>
+    <string name="voice_speak">말씀해주세요</string>
+    <string name="voice_error">음성 인식 오류</string>
+    
+    <!-- Shake -->
+    <string name="shake_title">오늘의 맛집 스핀휠</string>
+    <string name="shake_instruction">폰을 흔들어 맛집을 뽑아보세요!</string>
+    <string name="shake_result">오늘의 추천 맛집</string>
+    <string name="shake_not_available">여행지에 도착하면 사용할 수 있습니다</string>
+    
+    <!-- Notification -->
+    <string name="notif_d7_title">여행까지 7일 남았어요!</string>
+    <string name="notif_d7_message">%s님, %s 여행까지 일주일 남았습니다.</string>
+    <string name="notif_d3_title">여행 준비를 시작해보세요</string>
+    <string name="notif_d3_message">즐거운 마음으로 여행 준비를 시작해보세요 🎒</string>
+    <string name="notif_d0_title">오늘이 여행 떠나는 날입니다</string>
+    <string name="notif_d0_message">즐거운 시간 되세요! 안전한 여행 되시길 바랍니다.</string>
+    
+    <!-- Widget -->
+    <string name="widget_next_trip">다음 여행</string>
+    <string name="widget_no_trip">예정된 여행이 없습니다</string>
+    <string name="widget_attractions">명소 %d개</string>
+    <string name="widget_restaurants">맛집 %d개</string>
+    
+    <!-- Auth -->
+    <string name="auth_sign_in">Google로 로그인</string>
+    <string name="auth_sign_out">로그아웃</string>
+    <string name="auth_nickname">닉네임</string>
+    <string name="auth_nickname_hint">닉네임을 입력하세요</string>
+    <string name="auth_create_profile">프로필 만들기</string>
+    
+    <!-- Common -->
+    <string name="ok">확인</string>
+    <string name="cancel">취소</string>
+    <string name="save">저장</string>
+    <string name="delete">삭제</string>
+    <string name="edit">수정</string>
+    <string name="loading">로딩 중...</string>
+    <string name="error">오류가 발생했습니다</string>
+    <string name="retry">다시 시도</string>
+    <string name="no_data">데이터가 없습니다</string>
+    <string name="create_trip_first">먼저 여행 계획을 작성해주세요</string>
+    
+    <!-- Permissions -->
+    <string name="permission_location_rationale">맛집까지의 거리를 계산하기 위해 위치 권한이 필요합니다.</string>
+    <string name="permission_notification_rationale">여행 일정 알림을 받기 위해 알림 권한이 필요합니다.</string>
+</resources>

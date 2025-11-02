@@ -1,0 +1,36 @@
+package com.travelfoodie
+
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
+class TravelFoodieApp : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannels()
+    }
+
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_TRAVEL_REMINDERS,
+                "Travel Reminders",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Notifications for upcoming trips"
+                enableVibration(true)
+            }
+
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager?.createNotificationChannel(channel)
+        }
+    }
+
+    companion object {
+        const val CHANNEL_TRAVEL_REMINDERS = "travel_reminders"
+    }
+}

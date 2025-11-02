@@ -1,0 +1,79 @@
+[versions]
+kotlin = "2.0.20"
+agp = "8.5.2"
+coroutines = "1.8.1"
+lifecycle = "2.8.4"
+room = "2.6.1"
+hilt = "2.51.1"
+retrofit = "2.11.0"
+okhttp = "4.12.0"
+moshi = "1.15.1"
+playServicesLocation = "21.3.0"
+maps = "18.2.0"
+places = "3.5.0"
+material = "1.12.0"
+appcompat = "1.7.0"
+constraintlayout = "2.1.4"
+firebaseBom = "33.2.0"
+lottie = "6.4.0"
+paging = "3.3.2"
+coreKtx = "1.13.1"
+fragmentKtx = "1.8.2"
+activityKtx = "1.9.1"
+navigationKtx = "2.7.7"
+workManager = "2.9.0"
+mlKit = "16.0.0"
+
+[libraries]
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
+navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationKtx" }
+navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtx" }
+
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+
+hilt = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+
+location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+maps = { module = "com.google.android.gms:play-services-maps", version.ref = "maps" }
+places = { module = "com.google.android.libraries.places:places", version.ref = "places" }
+
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-database = { module = "com.google.firebase:firebase-database-ktx" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+paging = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
+work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
+mlkit-text = { module = "com.google.mlkit:text-recognition", version.ref = "mlKit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }

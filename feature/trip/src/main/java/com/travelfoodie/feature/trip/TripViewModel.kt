@@ -2,7 +2,6 @@ package com.travelfoodie.feature.trip
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.travelfoodie.core.data.local.entity.TripEntity
 import com.travelfoodie.core.data.repository.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,8 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TripViewModel @Inject constructor(
-    private val tripRepository: TripRepository,
-    private val auth: FirebaseAuth
+    private val tripRepository: TripRepository
 ) : ViewModel() {
 
     private val _trips = MutableStateFlow<List<TripEntity>>(emptyList())
@@ -26,7 +24,8 @@ class TripViewModel @Inject constructor(
     }
 
     private fun loadTrips() {
-        val userId = auth.currentUser?.uid ?: return
+        // TODO: Replace with actual Firebase Auth user ID when Firebase is configured
+        val userId = "dev_user_001"
         viewModelScope.launch {
             tripRepository.getTripsByUser(userId).collect { tripList ->
                 _trips.value = tripList

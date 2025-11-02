@@ -4,7 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
-import com.travelfoodie.R
+import com.travelfoodie.feature.widget.R
 
 class TripWidgetProvider : AppWidgetProvider() {
 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TravelFoodie</string>
+    
+    <!-- Navigation -->
+    <string name="nav_trips">Trips</string>
+    <string name="nav_attractions">Attractions</string>
+    <string name="nav_restaurants">Restaurants</string>
+    <string name="nav_profile">Profile</string>
+    
+    <!-- Trip -->
+    <string name="trip_list_title">My Trips</string>
+    <string name="trip_add">Add New Trip</string>
+    <string name="trip_title">Trip Title</string>
+    <string name="trip_start_date">Start Date</string>
+    <string name="trip_end_date">End Date</string>
+    <string name="trip_theme">Trip Theme</string>
+    <string name="trip_members">Travel Companions</string>
+    <string name="trip_regions">Destinations</string>
+    <string name="trip_save">Save</string>
+    <string name="trip_cancel">Cancel</string>
+    <string name="trip_edit">Edit</string>
+    <string name="trip_delete">Delete</string>
+    <string name="trip_d_day">D-%d</string>
+    <string name="trip_d_day_today">D-Day</string>
+    
+    <!-- Theme -->
+    <string name="theme_active">Active</string>
+    <string name="theme_culture">Culture</string>
+    <string name="theme_relaxation">Relaxation</string>
+    <string name="theme_shopping">Shopping</string>
+    <string name="theme_food">Food Tour</string>
+    
+    <!-- Attraction -->
+    <string name="attraction_title">Recommended Attractions</string>
+    <string name="attraction_top_5">TOP 5 Attractions</string>
+    <string name="attraction_loading">Finding attractions...</string>
+    
+    <!-- Restaurant -->
+    <string name="restaurant_title">Recommended Restaurants</string>
+    <string name="restaurant_top_10">TOP 10 Restaurants</string>
+    <string name="restaurant_loading">Finding restaurants...</string>
+    <string name="restaurant_details">Restaurant Details</string>
+    <string name="restaurant_menu">Menu</string>
+    <string name="restaurant_hours">Hours</string>
+    <string name="restaurant_reservable">Reservations Available</string>
+    <string name="restaurant_distance">Distance: %.1f km</string>
+    <string name="restaurant_rating">Rating: %.1f</string>
+    <string name="restaurant_open_map">Open in Maps</string>
+    
+    <!-- Voice -->
+    <string name="voice_command">Voice Command</string>
+    <string name="voice_listening">Listening...</string>
+    <string name="voice_speak">Please speak</string>
+    <string name="voice_error">Voice recognition error</string>
+    
+    <!-- Shake -->
+    <string name="shake_title">Restaurant Spin Wheel</string>
+    <string name="shake_instruction">Shake your phone to pick a restaurant!</string>
+    <string name="shake_result">Today\'s Recommended Restaurants</string>
+    <string name="shake_not_available">Available when you arrive at your destination</string>
+    
+    <!-- Notification -->
+    <string name="notif_d7_title">7 days until your trip!</string>
+    <string name="notif_d7_message">%s, one week left until your %s trip.</string>
+    <string name="notif_d3_title">Start preparing for your trip</string>
+    <string name="notif_d3_message">Get ready for your trip with excitement 🎒</string>
+    <string name="notif_d0_title">Today is your trip day</string>
+    <string name="notif_d0_message">Have a wonderful time! Safe travels.</string>
+    
+    <!-- Widget -->
+    <string name="widget_next_trip">Next Trip</string>
+    <string name="widget_no_trip">No upcoming trips</string>
+    <string name="widget_attractions">%d Attractions</string>
+    <string name="widget_restaurants">%d Restaurants</string>
+    
+    <!-- Auth -->
+    <string name="auth_sign_in">Sign in with Google</string>
+    <string name="auth_sign_out">Sign Out</string>
+    <string name="auth_nickname">Nickname</string>
+    <string name="auth_nickname_hint">Enter your nickname</string>
+    <string name="auth_create_profile">Create Profile</string>
+    
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="loading">Loading...</string>
+    <string name="error">An error occurred</string>
+    <string name="retry">Retry</string>
+    <string name="no_data">No data available</string>
+    <string name="create_trip_first">Please create a trip first</string>
+    
+    <!-- Permissions -->
+    <string name="permission_location_rationale">Location permission is needed to calculate distance to restaurants.</string>
+    <string name="permission_notification_rationale">Notification permission is needed to receive trip reminders.</string>
+</resources>

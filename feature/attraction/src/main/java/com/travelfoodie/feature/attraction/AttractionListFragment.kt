@@ -70,6 +70,7 @@ class AttractionListFragment : Fragment() {
     private fun observeAttractions() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.attractions.collect { attractions ->
+                android.util.Log.d("AttractionListFragment", "Displaying ${attractions.size} attractions")
                 adapter.submitList(attractions)
                 binding.textViewEmpty.visibility = if (attractions.isEmpty()) View.VISIBLE else View.GONE
             }

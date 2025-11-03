@@ -216,10 +216,13 @@ class TripListFragment : Fragment() {
      * Shows progress of the auto-generation flow and navigates to attractions on success
      */
     private fun showCreationProgress(tripId: String?, regionName: String?) {
+        android.util.Log.d("TripListFragment", "showCreationProgress - observing creation state")
         var progressDialog: AlertDialog? = null
 
         viewLifecycleOwner.lifecycleScope.launch {
+            android.util.Log.d("TripListFragment", "Coroutine launched to observe creationState")
             viewModel.creationState.collect { state ->
+                android.util.Log.d("TripListFragment", "CreationState changed: ${state::class.simpleName}")
                 when (state) {
                     is TripCreationState.SavingTrip -> {
                         progressDialog = MaterialAlertDialogBuilder(requireContext())

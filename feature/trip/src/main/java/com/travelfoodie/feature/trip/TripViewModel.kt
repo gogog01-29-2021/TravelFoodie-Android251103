@@ -53,14 +53,19 @@ class TripViewModel @Inject constructor(
      * Flow: Save Trip → Generate Attractions → Generate Restaurants → Schedule Notifications
      */
     fun createTripWithAutoGeneration(trip: TripEntity, regionName: String, members: String) {
+        android.util.Log.d("TripViewModel", "createTripWithAutoGeneration START - tripId: ${trip.tripId}")
         viewModelScope.launch {
             try {
+                android.util.Log.d("TripViewModel", "Setting state: SavingTrip")
                 _creationState.value = TripCreationState.SavingTrip
 
                 // 1. Save trip to database
+                android.util.Log.d("TripViewModel", "Inserting trip into database")
                 tripRepository.insertTrip(trip)
+                android.util.Log.d("TripViewModel", "Trip inserted successfully")
 
                 // 2. Auto-generate 5 AI attractions for the region
+                android.util.Log.d("TripViewModel", "Setting state: GeneratingAttractions")
                 _creationState.value = TripCreationState.GeneratingAttractions
                 android.util.Log.d("TripViewModel", "Generating attractions for tripId: ${trip.tripId}, regionName: $regionName")
                 val attractions = poiRepository.generateMockAttractions(
@@ -70,25 +75,34 @@ class TripViewModel @Inject constructor(
                 android.util.Log.d("TripViewModel", "Generated ${attractions.size} attractions for tripId: ${trip.tripId}")
 
                 // 3. Auto-generate 10 restaurants for the region
+                android.util.Log.d("TripViewModel", "Setting state: GeneratingRestaurants")
                 _creationState.value = TripCreationState.GeneratingRestaurants
+                android.util.Log.d("TripViewModel", "Generating restaurants")
                 val restaurants = restaurantRepository.createMockRestaurants(
                     regionId = trip.tripId,  // Use tripId as regionId for simplicity
                     regionName = regionName,
                     lat = 37.5665, // Default Seoul coordinates, should be from region
                     lng = 126.9780
                 )
+                android.util.Log.d("TripViewModel", "Generated ${restaurants.size} restaurants")
 
                 // 4. Schedule push notifications (D-7, D-3, D-0)
+                android.util.Log.d("TripViewModel", "Setting state: SchedulingNotifications")
                 _creationState.value = TripCreationState.SchedulingNotifications
+                android.util.Log.d("TripViewModel", "Scheduling notifications")
                 scheduleNotifications(trip)
+                android.util.Log.d("TripViewModel", "Notifications scheduled")
 
                 // 5. Success!
+                android.util.Log.d("TripViewModel", "Setting state: Success")
                 _creationState.value = TripCreationState.Success(
                     attractionsCount = attractions.size,
                     restaurantsCount = restaurants.size
                 )
+                android.util.Log.d("TripViewModel", "SUCCESS - attractionsCount: ${attractions.size}, restaurantsCount: ${restaurants.size}")
 
             } catch (e: Exception) {
+                android.util.Log.e("TripViewModel", "ERROR in createTripWithAutoGeneration: ${e.message}", e)
                 _creationState.value = TripCreationState.Error(e.message ?: "Unknown error")
             }
         }

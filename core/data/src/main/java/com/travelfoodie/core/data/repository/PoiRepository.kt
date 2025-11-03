@@ -20,8 +20,13 @@ class PoiRepository @Inject constructor(
         regionName: String
     ): List<PoiEntity> {
         android.util.Log.d("PoiRepository", "generateMockAttractions called - regionId: $regionId, regionName: $regionName")
-        val mockPois = when {
-            regionName.contains("서울") -> listOf(
+        android.util.Log.d("PoiRepository", "About to enter when block")
+
+        val mockPois = try {
+            when {
+            regionName.contains("서울") -> {
+                android.util.Log.d("PoiRepository", "Matched 서울 case")
+                listOf(
                 PoiEntity(
                     poiId = UUID.randomUUID().toString(),
                     regionId = regionId,
@@ -68,6 +73,7 @@ class PoiRepository @Inject constructor(
                     description = "산책과 자전거를 즐길 수 있는 도심 속 휴식처입니다."
                 )
             )
+            }
             regionName.contains("부산") -> listOf(
                 PoiEntity(
                     poiId = UUID.randomUUID().toString(),
@@ -210,7 +216,12 @@ class PoiRepository @Inject constructor(
                 )
             )
         }
+        } catch (e: Exception) {
+            android.util.Log.e("PoiRepository", "ERROR in when block: ${e.message}", e)
+            emptyList()
+        }
 
+        android.util.Log.d("PoiRepository", "When block completed successfully, mockPois.size = ${mockPois.size}")
         android.util.Log.d("PoiRepository", "Inserting ${mockPois.size} POIs into database")
         mockPois.forEach {
             android.util.Log.d("PoiRepository", "  - POI: ${it.name}, regionId: ${it.regionId}")

@@ -25,8 +25,10 @@ class SharedTripViewModel @Inject constructor() : ViewModel() {
      * Call this when user creates or selects a trip
      */
     fun selectTrip(tripId: String, regionName: String) {
+        android.util.Log.d("SharedTripViewModel", "selectTrip called - tripId: $tripId, regionName: $regionName")
         _selectedTripId.value = tripId
         _selectedRegionName.value = regionName
+        android.util.Log.d("SharedTripViewModel", "State updated - selectedTripId: ${_selectedTripId.value}, selectedRegionName: ${_selectedRegionName.value}")
     }
 
     fun clearSelection() {

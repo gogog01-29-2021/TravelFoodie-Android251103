@@ -13,9 +13,13 @@ import com.travelfoodie.TravelFoodieApp
 class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val tripTitle = intent.getStringExtra(EXTRA_TRIP_TITLE) ?: return
-        val notifType = intent.getStringExtra(EXTRA_NOTIF_TYPE) ?: return
-        val nickname = intent.getStringExtra(EXTRA_NICKNAME) ?: "여행자"
+        // Support both old and new intent extras format
+        val tripTitle = intent.getStringExtra(EXTRA_TRIP_TITLE)
+            ?: intent.getStringExtra("trip_title") ?: return
+        val notifType = intent.getStringExtra(EXTRA_NOTIF_TYPE)
+            ?: intent.getStringExtra("notif_type") ?: return
+        val nickname = intent.getStringExtra(EXTRA_NICKNAME)
+            ?: intent.getStringExtra("nickname") ?: "여행자"
 
         val (title, message) = when (notifType) {
             "D-7" -> Pair(

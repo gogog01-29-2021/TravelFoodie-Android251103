@@ -69,7 +69,7 @@ class RestaurantRepository @Inject constructor(
         }
     }
 
-    private suspend fun createMockRestaurants(
+    suspend fun createMockRestaurants(
         regionId: String,
         regionName: String,
         lat: Double,

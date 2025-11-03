@@ -65,7 +65,11 @@
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.travelfoodie.TRIP_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
 
         <!-- Firebase Messaging Service -->
         <service

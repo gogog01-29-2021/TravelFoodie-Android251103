@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.travelfoodie.core.data.local.AppDatabase
+import com.travelfoodie.core.data.remote.GooglePlacesApi
+import com.travelfoodie.core.data.remote.OpenAIApi
 import com.travelfoodie.core.data.remote.api.KakaoApiService
 import com.travelfoodie.core.data.remote.api.NaverApiService
 import dagger.Module
@@ -27,6 +29,14 @@ annotation class KakaoRetrofit
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class NaverRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class OpenAIRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class GooglePlacesRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -122,5 +132,39 @@ object DataModule {
     @Singleton
     fun provideNaverApiService(@NaverRetrofit retrofit: Retrofit): NaverApiService {
         return retrofit.create(NaverApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @OpenAIRetrofit
+    fun provideOpenAIRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.openai.com/")
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @GooglePlacesRetrofit
+    fun provideGooglePlacesRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://maps.googleapis.com/")
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOpenAIApi(@OpenAIRetrofit retrofit: Retrofit): OpenAIApi {
+        return retrofit.create(OpenAIApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGooglePlacesApi(@GooglePlacesRetrofit retrofit: Retrofit): GooglePlacesApi {
+        return retrofit.create(GooglePlacesApi::class.java)
     }
 }

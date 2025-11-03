@@ -12,6 +12,27 @@ android {
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load API keys from .env file
+        val envFile = project.rootProject.file(".env")
+        if (envFile.exists()) {
+            envFile.readLines().forEach { line ->
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2 && !line.startsWith("#")) {
+                    val key = parts[0].trim()
+                    val value = parts[1].trim()
+                    buildConfigField("String", key, "\"$value\"")
+                }
+            }
+        } else {
+            // Default values if .env doesn't exist
+            buildConfigField("String", "OPENAI_API_KEY", "\"\"")
+            buildConfigField("String", "GOOGLE_PLACES_API_KEY", "\"\"")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {

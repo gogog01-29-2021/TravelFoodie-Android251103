@@ -1,15 +1,25 @@
 package com.travelfoodie.core.data.repository
 
+import com.travelfoodie.core.data.BuildConfig
 import com.travelfoodie.core.data.local.dao.PoiDao
 import com.travelfoodie.core.data.local.entity.PoiEntity
+import com.travelfoodie.core.data.remote.ChatCompletionRequest
+import com.travelfoodie.core.data.remote.ChatMessage
+import com.travelfoodie.core.data.remote.GooglePlacesApi
+import com.travelfoodie.core.data.remote.OpenAIApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import org.json.JSONArray
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class PoiRepository @Inject constructor(
-    private val poiDao: PoiDao
+    private val poiDao: PoiDao,
+    private val openAIApi: OpenAIApi,
+    private val googlePlacesApi: GooglePlacesApi
 ) {
     fun getPoisByRegion(regionId: String): Flow<List<PoiEntity>> {
         return poiDao.getPoisByRegion(regionId)
@@ -18,217 +28,179 @@ class PoiRepository @Inject constructor(
     suspend fun generateMockAttractions(
         regionId: String,
         regionName: String
-    ): List<PoiEntity> {
+    ): List<PoiEntity> = coroutineScope {
         android.util.Log.d("PoiRepository", "generateMockAttractions called - regionId: $regionId, regionName: $regionName")
-        android.util.Log.d("PoiRepository", "About to enter when block")
+        android.util.Log.d("PoiRepository", "Calling BOTH ChatGPT AND Google Places APIs in parallel")
 
-        val mockPois = try {
-            when {
-            regionName.contains("서울") -> {
-                android.util.Log.d("PoiRepository", "Matched 서울 case")
-                listOf(
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "경복궁",
-                    category = "역사",
-                    rating = 4.7f,
-                    imageUrl = null,
-                    description = "조선시대 대표 궁궐로 아름다운 전통 건축을 감상할 수 있습니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "N서울타워",
-                    category = "전망대",
-                    rating = 4.5f,
-                    imageUrl = null,
-                    description = "서울의 야경을 한눈에 볼 수 있는 랜드마크입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "명동",
-                    category = "쇼핑",
-                    rating = 4.3f,
-                    imageUrl = null,
-                    description = "다양한 쇼핑과 먹거리를 즐길 수 있는 번화가입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "북촌 한옥마을",
-                    category = "문화",
-                    rating = 4.6f,
-                    imageUrl = null,
-                    description = "전통 한옥이 보존된 아름다운 마을입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "한강공원",
-                    category = "자연",
-                    rating = 4.4f,
-                    imageUrl = null,
-                    description = "산책과 자전거를 즐길 수 있는 도심 속 휴식처입니다."
-                )
-            )
+        try {
+            // Call both APIs in parallel
+            val chatGptDeferred = async { getAttractionsFromChatGPT(regionName) }
+            val googlePlacesDeferred = async { getAttractionsFromGooglePlaces(regionName) }
+
+            val chatGptResults = try {
+                chatGptDeferred.await()
+            } catch (e: Exception) {
+                android.util.Log.e("PoiRepository", "ChatGPT API error: ${e.message}", e)
+                emptyList()
             }
-            regionName.contains("부산") -> listOf(
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "해운대 해수욕장",
-                    category = "해변",
-                    rating = 4.8f,
-                    imageUrl = null,
-                    description = "부산의 대표 해수욕장으로 아름다운 해변을 자랑합니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "감천문화마을",
-                    category = "문화",
-                    rating = 4.6f,
-                    imageUrl = null,
-                    description = "알록달록한 집들이 모여있는 예술 마을입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "자갈치시장",
-                    category = "시장",
-                    rating = 4.5f,
-                    imageUrl = null,
-                    description = "신선한 해산물을 맛볼 수 있는 전통 시장입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "광안대교",
-                    category = "랜드마크",
-                    rating = 4.7f,
-                    imageUrl = null,
-                    description = "야경이 아름다운 부산의 상징적인 다리입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "태종대",
-                    category = "자연",
-                    rating = 4.6f,
-                    imageUrl = null,
-                    description = "절벽과 바다가 어우러진 절경을 감상할 수 있습니다."
-                )
-            )
-            regionName.contains("제주") -> listOf(
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "한라산",
-                    category = "자연",
-                    rating = 4.9f,
-                    imageUrl = null,
-                    description = "제주도의 상징인 아름다운 산입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "성산일출봉",
-                    category = "자연",
-                    rating = 4.8f,
-                    imageUrl = null,
-                    description = "일출이 아름다운 화산 분화구입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "섭지코지",
-                    category = "해안",
-                    rating = 4.7f,
-                    imageUrl = null,
-                    description = "드라마 촬영지로 유명한 아름다운 해안입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "우도",
-                    category = "섬",
-                    rating = 4.6f,
-                    imageUrl = null,
-                    description = "제주 옆 작은 섬으로 한적한 여행지입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "천지연 폭포",
-                    category = "자연",
-                    rating = 4.5f,
-                    imageUrl = null,
-                    description = "울창한 숲 속의 아름다운 폭포입니다."
-                )
-            )
-            else -> listOf(
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "$regionName 중심가",
-                    category = "쇼핑",
-                    rating = 4.3f,
-                    imageUrl = null,
-                    description = "${regionName}의 번화가로 다양한 상점이 있습니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "$regionName 박물관",
-                    category = "문화",
-                    rating = 4.4f,
-                    imageUrl = null,
-                    description = "${regionName}의 역사와 문화를 배울 수 있습니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "$regionName 공원",
-                    category = "자연",
-                    rating = 4.5f,
-                    imageUrl = null,
-                    description = "산책과 휴식을 즐길 수 있는 공원입니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "$regionName 전통시장",
-                    category = "시장",
-                    rating = 4.2f,
-                    imageUrl = null,
-                    description = "지역 특산물과 먹거리를 즐길 수 있습니다."
-                ),
-                PoiEntity(
-                    poiId = UUID.randomUUID().toString(),
-                    regionId = regionId,
-                    name = "$regionName 전망대",
-                    category = "전망",
-                    rating = 4.6f,
-                    imageUrl = null,
-                    description = "${regionName}의 전경을 한눈에 볼 수 있습니다."
-                )
-            )
-        }
+
+            val googlePlacesResults = try {
+                googlePlacesDeferred.await()
+            } catch (e: Exception) {
+                android.util.Log.e("PoiRepository", "Google Places API error: ${e.message}", e)
+                emptyList()
+            }
+
+            android.util.Log.d("PoiRepository", "ChatGPT returned ${chatGptResults.size} attractions")
+            android.util.Log.d("PoiRepository", "Google Places returned ${googlePlacesResults.size} attractions")
+
+            // Combine results from both APIs
+            val combinedResults = (chatGptResults + googlePlacesResults)
+                .map { it.copy(regionId = regionId) }
+                .take(10) // Limit to 10 total attractions
+
+            android.util.Log.d("PoiRepository", "Combined total: ${combinedResults.size} attractions")
+            combinedResults.forEach {
+                android.util.Log.d("PoiRepository", "  - ${it.name} (${it.category}) - Rating: ${it.rating}")
+            }
+
+            // Insert into database
+            poiDao.insertPois(combinedResults)
+            android.util.Log.d("PoiRepository", "Successfully inserted ${combinedResults.size} POIs into database")
+
+            combinedResults
         } catch (e: Exception) {
-            android.util.Log.e("PoiRepository", "ERROR in when block: ${e.message}", e)
+            android.util.Log.e("PoiRepository", "ERROR in generateMockAttractions: ${e.message}", e)
             emptyList()
         }
+    }
 
-        android.util.Log.d("PoiRepository", "When block completed successfully, mockPois.size = ${mockPois.size}")
-        android.util.Log.d("PoiRepository", "Inserting ${mockPois.size} POIs into database")
-        mockPois.forEach {
-            android.util.Log.d("PoiRepository", "  - POI: ${it.name}, regionId: ${it.regionId}")
+    /**
+     * Get attraction recommendations from ChatGPT
+     */
+    private suspend fun getAttractionsFromChatGPT(regionName: String): List<PoiEntity> {
+        if (BuildConfig.OPENAI_API_KEY.isEmpty()) {
+            android.util.Log.w("PoiRepository", "OpenAI API key not configured")
+            return emptyList()
         }
-        poiDao.insertPois(mockPois)
-        android.util.Log.d("PoiRepository", "POIs inserted successfully")
-        return mockPois
+
+        return try {
+            val prompt = """
+                Recommend 5 must-visit attractions in $regionName.
+                For each attraction, provide:
+                - name: attraction name
+                - category: one of (역사, 문화, 자연, 쇼핑, 전망대, 해변, 시장, 랜드마크)
+                - rating: a rating between 4.0 and 5.0
+                - description: brief description in Korean (one sentence)
+
+                Return ONLY a JSON array in this exact format:
+                [{"name":"...", "category":"...", "rating":4.5, "description":"..."}]
+            """.trimIndent()
+
+            val request = ChatCompletionRequest(
+                model = "gpt-3.5-turbo",
+                messages = listOf(
+                    ChatMessage(role = "system", content = "You are a travel expert providing attraction recommendations."),
+                    ChatMessage(role = "user", content = prompt)
+                ),
+                temperature = 0.7,
+                maxTokens = 1000
+            )
+
+            val response = openAIApi.getChatCompletion(
+                authorization = "Bearer ${BuildConfig.OPENAI_API_KEY}",
+                request = request
+            )
+
+            val content = response.choices.firstOrNull()?.message?.content ?: return emptyList()
+            android.util.Log.d("PoiRepository", "ChatGPT response: $content")
+
+            // Parse JSON response
+            parseChatGPTResponse(content)
+        } catch (e: Exception) {
+            android.util.Log.e("PoiRepository", "ChatGPT API call failed: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    private fun parseChatGPTResponse(jsonString: String): List<PoiEntity> {
+        return try {
+            val jsonArray = JSONArray(jsonString.substringAfter("[").substringBefore("]") + "]")
+            val attractions = mutableListOf<PoiEntity>()
+
+            for (i in 0 until jsonArray.length()) {
+                val json = jsonArray.getJSONObject(i)
+                attractions.add(
+                    PoiEntity(
+                        poiId = UUID.randomUUID().toString(),
+                        regionId = "", // Will be set later
+                        name = json.optString("name", "Unknown"),
+                        category = json.optString("category", "기타"),
+                        rating = json.optDouble("rating", 4.5).toFloat(),
+                        imageUrl = null,
+                        description = json.optString("description", "")
+                    )
+                )
+            }
+
+            attractions
+        } catch (e: Exception) {
+            android.util.Log.e("PoiRepository", "Failed to parse ChatGPT JSON: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    /**
+     * Get attractions from Google Places API
+     */
+    private suspend fun getAttractionsFromGooglePlaces(regionName: String): List<PoiEntity> {
+        if (BuildConfig.GOOGLE_PLACES_API_KEY.isEmpty() ||
+            BuildConfig.GOOGLE_PLACES_API_KEY == "YOUR_GOOGLE_PLACES_API_KEY_HERE") {
+            android.util.Log.w("PoiRepository", "Google Places API key not configured")
+            return emptyList()
+        }
+
+        return try {
+            val query = "$regionName tourist attractions"
+            val response = googlePlacesApi.searchPlaces(
+                query = query,
+                apiKey = BuildConfig.GOOGLE_PLACES_API_KEY,
+                language = "ko"
+            )
+
+            if (response.status != "OK") {
+                android.util.Log.w("PoiRepository", "Google Places API returned status: ${response.status}")
+                return emptyList()
+            }
+
+            response.results.take(5).map { place ->
+                PoiEntity(
+                    poiId = UUID.randomUUID().toString(),
+                    regionId = "", // Will be set later
+                    name = place.name,
+                    category = mapPlaceTypeToCategory(place.types),
+                    rating = place.rating?.toFloat() ?: 4.0f,
+                    imageUrl = null, // Could use photo reference to build URL
+                    description = place.formattedAddress ?: ""
+                )
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PoiRepository", "Google Places API call failed: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    private fun mapPlaceTypeToCategory(types: List<String>?): String {
+        if (types.isNullOrEmpty()) return "기타"
+
+        return when {
+            types.any { it in listOf("museum", "art_gallery") } -> "문화"
+            types.any { it in listOf("tourist_attraction", "point_of_interest") } -> "관광지"
+            types.any { it in listOf("park", "natural_feature") } -> "자연"
+            types.any { it in listOf("shopping_mall", "store") } -> "쇼핑"
+            types.any { it == "church" } -> "역사"
+            else -> "명소"
+        }
     }
 
     suspend fun insertPoi(poi: PoiEntity) {

@@ -21,7 +21,12 @@ class AttractionViewModel @Inject constructor(
 
     fun loadAttractions(regionId: String) {
         viewModelScope.launch {
+            android.util.Log.d("AttractionViewModel", "Loading attractions for regionId: $regionId")
             poiRepository.getPoisByRegion(regionId).collect { pois ->
+                android.util.Log.d("AttractionViewModel", "Received ${pois.size} attractions")
+                pois.forEach {
+                    android.util.Log.d("AttractionViewModel", "  - ${it.name} (regionId: ${it.regionId})")
+                }
                 _attractions.value = pois
             }
         }

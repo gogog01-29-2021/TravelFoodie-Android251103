@@ -50,7 +50,10 @@ class RestaurantListFragment : Fragment() {
             sharedViewModel.selectedTripId.collect { tripId ->
                 if (tripId != null) {
                     // Auto-load restaurants for the selected trip
+                    android.util.Log.d("RestaurantListFragment", "Loading restaurants for tripId: $tripId")
                     viewModel.loadRestaurants(tripId)
+                } else {
+                    android.util.Log.d("RestaurantListFragment", "No trip selected")
                 }
             }
         }

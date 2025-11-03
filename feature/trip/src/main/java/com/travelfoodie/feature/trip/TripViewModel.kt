@@ -208,6 +208,44 @@ class TripViewModel @Inject constructor(
     fun resetCreationState() {
         _creationState.value = TripCreationState.Idle
     }
+
+    /**
+     * Regenerate attractions and restaurants for an existing trip
+     */
+    fun regenerateAttractionsAndRestaurants(trip: TripEntity) {
+        android.util.Log.d("TripViewModel", "regenerateAttractionsAndRestaurants - tripId: ${trip.tripId}, region: ${trip.regionName}")
+        viewModelScope.launch {
+            try {
+                // Delete old data first
+                android.util.Log.d("TripViewModel", "Deleting old attractions...")
+                poiRepository.deletePoiByRegionId(trip.tripId)
+
+                android.util.Log.d("TripViewModel", "Deleting old restaurants...")
+                restaurantRepository.deleteRestaurantsByRegionId(trip.tripId)
+
+                // Regenerate new data from APIs
+                android.util.Log.d("TripViewModel", "Regenerating attractions from ChatGPT + Google Places...")
+                val attractions = poiRepository.generateMockAttractions(
+                    regionId = trip.tripId,
+                    regionName = trip.regionName
+                )
+                android.util.Log.d("TripViewModel", "Regenerated ${attractions.size} attractions")
+
+                android.util.Log.d("TripViewModel", "Regenerating restaurants...")
+                val restaurants = restaurantRepository.createMockRestaurants(
+                    regionId = trip.tripId,
+                    regionName = trip.regionName,
+                    lat = 37.5665,
+                    lng = 126.9780
+                )
+                android.util.Log.d("TripViewModel", "Regenerated ${restaurants.size} restaurants")
+
+                android.util.Log.d("TripViewModel", "Regeneration complete!")
+            } catch (e: Exception) {
+                android.util.Log.e("TripViewModel", "Error regenerating: ${e.message}", e)
+            }
+        }
+    }
 }
 
 /**

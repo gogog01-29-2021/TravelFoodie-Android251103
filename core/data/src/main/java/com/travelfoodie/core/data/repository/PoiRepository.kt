@@ -154,8 +154,7 @@ class PoiRepository @Inject constructor(
      * Get attractions from Google Places API
      */
     private suspend fun getAttractionsFromGooglePlaces(regionName: String): List<PoiEntity> {
-        if (BuildConfig.GOOGLE_PLACES_API_KEY.isEmpty() ||
-            BuildConfig.GOOGLE_PLACES_API_KEY == "YOUR_GOOGLE_PLACES_API_KEY_HERE") {
+        if (BuildConfig.GOOGLE_PLACES_API_KEY.isEmpty()) {
             android.util.Log.w("PoiRepository", "Google Places API key not configured")
             return emptyList()
         }
@@ -209,5 +208,9 @@ class PoiRepository @Inject constructor(
 
     suspend fun deletePoi(poi: PoiEntity) {
         poiDao.deletePoi(poi)
+    }
+
+    suspend fun deletePoiByRegionId(regionId: String) {
+        poiDao.deletePoiByRegionId(regionId)
     }
 }

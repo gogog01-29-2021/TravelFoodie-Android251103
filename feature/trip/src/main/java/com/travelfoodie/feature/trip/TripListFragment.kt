@@ -193,7 +193,8 @@ class TripListFragment : Fragment() {
                 title = title,
                 startDate = startDateMillis,
                 endDate = endDateMillis,
-                theme = theme
+                theme = theme,
+                regionName = region // Save region name for API regeneration
             )
 
             // Store for navigation after success
@@ -274,7 +275,55 @@ class TripListFragment : Fragment() {
     }
 
     private fun showTripOptionsDialog(trip: com.travelfoodie.core.data.local.entity.TripEntity) {
-        // TODO: Implement options dialog
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(trip.title)
+            .setItems(arrayOf("선택하기", "명소/맛집 재생성", "삭제")) { _, which ->
+                when (which) {
+                    0 -> {
+                        // Select trip
+                        sharedViewModel.selectTrip(trip.tripId, trip.regionName)
+                        Toast.makeText(
+                            requireContext(),
+                            "\"${trip.title}\" 여행을 선택했습니다",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    1 -> {
+                        // Regenerate attractions and restaurants
+                        if (trip.regionName.isEmpty()) {
+                            Toast.makeText(
+                                requireContext(),
+                                "지역 정보가 없어 재생성할 수 없습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.regenerateAttractionsAndRestaurants(trip)
+                            Toast.makeText(
+                                requireContext(),
+                                "명소와 맛집을 재생성하고 있습니다...",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    2 -> {
+                        // Delete trip
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("여행 삭제")
+                            .setMessage("\"${trip.title}\" 여행을 삭제하시겠습니까?")
+                            .setPositiveButton("삭제") { _, _ ->
+                                viewModel.deleteTrip(trip)
+                                Toast.makeText(
+                                    requireContext(),
+                                    "여행이 삭제되었습니다",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .setNegativeButton("취소", null)
+                            .show()
+                    }
+                }
+            }
+            .show()
     }
 
     override fun onDestroyView() {

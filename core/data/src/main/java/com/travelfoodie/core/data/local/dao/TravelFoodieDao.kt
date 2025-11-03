@@ -80,6 +80,9 @@ interface PoiDao {
 
     @Delete
     suspend fun deletePoi(poi: PoiEntity)
+
+    @Query("DELETE FROM pois WHERE regionId = :regionId")
+    suspend fun deletePoiByRegionId(regionId: String)
 }
 
 @Dao
@@ -98,6 +101,9 @@ interface RestaurantDao {
 
     @Delete
     suspend fun deleteRestaurant(restaurant: RestaurantEntity)
+
+    @Query("DELETE FROM restaurants WHERE regionId = :regionId")
+    suspend fun deleteRestaurantsByRegionId(regionId: String)
 }
 
 @Dao

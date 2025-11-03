@@ -17,7 +17,7 @@ import com.travelfoodie.core.data.local.entity.*
         NotifScheduleEntity::class,
         ReceiptEntity::class
     ],
-    version = 1,
+    version = 2, // Added regionName to TripEntity
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

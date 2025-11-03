@@ -49,7 +49,9 @@ object DataModule {
             context,
             AppDatabase::class.java,
             "travelfoodie.db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration() // Clear database on schema changes (dev only)
+        .build()
     }
 
     @Provides

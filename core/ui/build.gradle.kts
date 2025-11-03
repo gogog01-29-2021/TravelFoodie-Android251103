@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -33,8 +35,12 @@ dependencies {
     api(libs.fragment.ktx)
     api(libs.activity.ktx)
     api(libs.lottie)
-    
+
     implementation(libs.lifecycle.runtime)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
+
+    // Hilt for SharedTripViewModel
+    implementation(libs.hilt)
+    kapt(libs.hilt.compiler)
 }

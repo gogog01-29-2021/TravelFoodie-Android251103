@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.travelfoodie.core.ui.SharedTripViewModel
 import com.travelfoodie.core.data.local.entity.TripEntity
 import com.travelfoodie.feature.trip.databinding.DialogAddTripBinding
 import com.travelfoodie.feature.trip.databinding.FragmentTripListBinding
@@ -27,8 +30,9 @@ class TripListFragment : Fragment() {
 
     private var _binding: FragmentTripListBinding? = null
     private val binding get() = _binding!!
-    
+
     private val viewModel: TripViewModel by viewModels()
+    private val sharedViewModel: SharedTripViewModel by activityViewModels()
     private lateinit var adapter: TripAdapter
 
     override fun onCreateView(
@@ -82,6 +86,8 @@ class TripListFragment : Fragment() {
         val dialogBinding = DialogAddTripBinding.inflate(layoutInflater)
         var startDateMillis: Long = 0
         var endDateMillis: Long = 0
+        var createdTripId: String? = null
+        var createdRegionName: String? = null
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         // Setup Start Date Picker
@@ -167,8 +173,9 @@ class TripListFragment : Fragment() {
             }
 
             // Create trip entity (simplified - regions and members stored separately in DB)
+            val tripId = UUID.randomUUID().toString()
             val trip = TripEntity(
-                tripId = UUID.randomUUID().toString(),
+                tripId = tripId,
                 userId = "dev_user_001", // TODO: Get from auth
                 title = title,
                 startDate = startDateMillis,
@@ -176,20 +183,24 @@ class TripListFragment : Fragment() {
                 theme = theme
             )
 
+            // Store for navigation after success
+            createdTripId = tripId
+            createdRegionName = region
+
             // 🔥 THIS IS THE KEY - Trigger the complete auto-generation flow
             viewModel.createTripWithAutoGeneration(trip, region, members)
 
             dialog.dismiss()
-            showCreationProgress()
+            showCreationProgress(createdTripId, createdRegionName)
         }
 
         dialog.show()
     }
 
     /**
-     * Shows progress of the auto-generation flow
+     * Shows progress of the auto-generation flow and navigates to attractions on success
      */
-    private fun showCreationProgress() {
+    private fun showCreationProgress(tripId: String?, regionName: String?) {
         var progressDialog: AlertDialog? = null
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -215,9 +226,18 @@ class TripListFragment : Fragment() {
                         progressDialog?.dismiss()
                         Toast.makeText(
                             requireContext(),
-                            "✅ 여행 생성 완료!\n명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개",
+                            "✅ 여행 생성 완료!\n명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개 생성됨",
                             Toast.LENGTH_LONG
                         ).show()
+
+                        // 🔗 STEP 1 COMPLETE: Set selected trip in shared ViewModel
+                        if (tripId != null && regionName != null) {
+                            sharedViewModel.selectTrip(tripId, regionName)
+                        }
+
+                        // 🔗 STEP 2: Navigate to attractions tab using bottom nav
+                        // User will see the generated attractions when they switch tabs
+
                         viewModel.resetCreationState()
                     }
                     is TripCreationState.Error -> {

@@ -232,19 +232,18 @@ class TripListFragment : Fragment() {
                     }
                     is TripCreationState.Success -> {
                         progressDialog?.dismiss()
-                        Toast.makeText(
-                            requireContext(),
-                            "✅ 여행 생성 완료!\n명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개 생성됨",
-                            Toast.LENGTH_LONG
-                        ).show()
 
                         // 🔗 STEP 1 COMPLETE: Set selected trip in shared ViewModel
                         if (tripId != null && regionName != null) {
                             sharedViewModel.selectTrip(tripId, regionName)
                         }
 
-                        // 🔗 STEP 2: Navigate to attractions tab using bottom nav
-                        // User will see the generated attractions when they switch tabs
+                        // Show success with clear instructions
+                        Toast.makeText(
+                            requireContext(),
+                            "✅ 여행 생성 완료!\n명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개 생성됨\n\n👉 명소/맛집 탭을 눌러 확인하세요!",
+                            Toast.LENGTH_LONG
+                        ).show()
 
                         viewModel.resetCreationState()
                     }

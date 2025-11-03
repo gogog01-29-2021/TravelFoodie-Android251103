@@ -50,7 +50,10 @@ class AttractionListFragment : Fragment() {
             sharedViewModel.selectedTripId.collect { tripId ->
                 if (tripId != null) {
                     // Auto-load attractions for the selected trip
+                    android.util.Log.d("AttractionListFragment", "Loading attractions for tripId: $tripId")
                     viewModel.loadAttractions(tripId)
+                } else {
+                    android.util.Log.d("AttractionListFragment", "No trip selected")
                 }
             }
         }

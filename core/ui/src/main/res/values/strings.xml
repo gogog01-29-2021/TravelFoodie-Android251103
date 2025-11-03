@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Trip -->
+    <string name="trip_list_title">내 여행</string>
+    <string name="trip_add">새 여행 추가</string>
+    <string name="trip_title">여행 제목</string>
+    <string name="trip_start_date">출발일</string>
+    <string name="trip_end_date">도착일</string>
+    <string name="trip_theme">여행 테마</string>
+    <string name="trip_members">함께 가는 사람</string>
+    <string name="trip_regions">여행지</string>
+    <string name="trip_save">저장</string>
+    <string name="trip_cancel">취소</string>
+    <string name="trip_edit">수정</string>
+    <string name="trip_delete">삭제</string>
+    <string name="trip_d_day">D-%d</string>
+    <string name="trip_d_day_today">D-Day</string>
+
+    <!-- Theme -->
+    <string name="theme_active">액티브</string>
+    <string name="theme_culture">문화</string>
+    <string name="theme_relaxation">휴식</string>
+    <string name="theme_shopping">쇼핑</string>
+    <string name="theme_food">맛집 투어</string>
+
+    <!-- Attraction -->
+    <string name="attraction_title">추천 명소</string>
+    <string name="attraction_top_5">TOP 5 명소</string>
+    <string name="attraction_loading">명소를 찾고 있습니다...</string>
+
+    <!-- Restaurant -->
+    <string name="restaurant_title">추천 맛집</string>
+    <string name="restaurant_top_10">TOP 10 맛집</string>
+    <string name="restaurant_loading">맛집을 찾고 있습니다...</string>
+    <string name="restaurant_details">맛집 상세</string>
+    <string name="restaurant_menu">메뉴</string>
+    <string name="restaurant_hours">영업시간</string>
+    <string name="restaurant_reservable">예약 가능</string>
+    <string name="restaurant_distance">거리: %.1f km</string>
+    <string name="restaurant_rating">평점: %.1f</string>
+    <string name="restaurant_open_map">지도에서 보기</string>
+
+    <!-- Common -->
+    <string name="ok">확인</string>
+    <string name="cancel">취소</string>
+    <string name="save">저장</string>
+    <string name="delete">삭제</string>
+    <string name="edit">수정</string>
+    <string name="loading">로딩 중...</string>
+    <string name="error">오류가 발생했습니다</string>
+    <string name="retry">다시 시도</string>
+    <string name="no_data">데이터가 없습니다</string>
+    <string name="create_trip_first">먼저 여행 계획을 작성해주세요</string>
+</resources>

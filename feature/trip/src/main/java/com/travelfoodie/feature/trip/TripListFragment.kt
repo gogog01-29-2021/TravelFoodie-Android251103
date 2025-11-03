@@ -46,10 +46,12 @@ class TripListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
+        android.util.Log.d("TripListFragment", "onViewCreated - SharedViewModel instance: ${sharedViewModel.hashCode()}")
+
         setupRecyclerView()
         observeTrips()
-        
+
         binding.fabAddTrip.setOnClickListener {
             // Navigate to add trip screen
             showAddTripDialog()
@@ -91,6 +93,7 @@ class TripListFragment : Fragment() {
     }
 
     private fun showAddTripDialog() {
+        android.util.Log.d("TripListFragment", "showAddTripDialog called")
         val dialogBinding = DialogAddTripBinding.inflate(layoutInflater)
         var startDateMillis: Long = 0
         var endDateMillis: Long = 0
@@ -142,9 +145,11 @@ class TripListFragment : Fragment() {
 
         // Save Button - THE KEY PART THAT TRIGGERS THE ENTIRE FLOW
         dialogBinding.btnSave.setOnClickListener {
+            android.util.Log.d("TripListFragment", "Save button clicked")
             val title = dialogBinding.editTripTitle.text.toString().trim()
             val region = dialogBinding.editRegion.text.toString().trim()
             val members = dialogBinding.editMembers.text.toString().trim()
+            android.util.Log.d("TripListFragment", "Input - title: $title, region: $region, members: $members")
 
             // Get selected theme
             val theme = when (dialogBinding.chipGroupTheme.checkedChipId) {
@@ -195,10 +200,12 @@ class TripListFragment : Fragment() {
             createdTripId = tripId
             createdRegionName = region
 
+            android.util.Log.d("TripListFragment", "Calling createTripWithAutoGeneration - tripId: $tripId, region: $region")
             // 🔥 THIS IS THE KEY - Trigger the complete auto-generation flow
             viewModel.createTripWithAutoGeneration(trip, region, members)
 
             dialog.dismiss()
+            android.util.Log.d("TripListFragment", "Showing creation progress - tripId: $createdTripId, region: $createdRegionName")
             showCreationProgress(createdTripId, createdRegionName)
         }
 

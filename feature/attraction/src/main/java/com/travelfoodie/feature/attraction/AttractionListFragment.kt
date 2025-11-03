@@ -36,6 +36,8 @@ class AttractionListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        android.util.Log.d("AttractionListFragment", "onViewCreated - SharedViewModel instance: ${sharedViewModel.hashCode()}")
+
         setupRecyclerView()
         observeAttractions()
         observeSelectedTrip()

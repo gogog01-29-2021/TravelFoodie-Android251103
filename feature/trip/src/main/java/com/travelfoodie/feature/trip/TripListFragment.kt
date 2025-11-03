@@ -59,7 +59,15 @@ class TripListFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = TripAdapter(
             onTripClick = { trip ->
-                // Navigate to trip detail
+                // Select trip and load its attractions/restaurants via SharedViewModel
+                val regionName = "서울" // TODO: Get actual region from trip's regions
+                sharedViewModel.selectTrip(trip.tripId, regionName)
+
+                Toast.makeText(
+                    requireContext(),
+                    "\"${trip.title}\" 여행을 선택했습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
             },
             onTripLongClick = { trip ->
                 // Show edit/delete menu

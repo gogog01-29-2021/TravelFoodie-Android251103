@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- App Colors -->
+    <color name="primary">#FF2196F3</color>
+    <color name="primary_dark">#FF1976D2</color>
+    <color name="primary_light">#FFBBDEFB</color>
+    <color name="accent">#FFFF5722</color>
+    <color name="accent_light">#FFFF8A65</color>
+
+    <color name="background">#FFF5F5F5</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="error">#FFB00020</color>
+
+    <color name="text_primary">#DE000000</color>
+    <color name="text_secondary">#99000000</color>
+    <color name="text_disabled">#61000000</color>
+
+    <!-- Theme Colors -->
+    <color name="theme_active">#FF4CAF50</color>
+    <color name="theme_culture">#FF9C27B0</color>
+    <color name="theme_relaxation">#FF00BCD4</color>
+    <color name="theme_shopping">#FFFF9800</color>
+    <color name="theme_food">#FFF44336</color>
+</resources>

@@ -229,4 +229,8 @@ class RestaurantRepository @Inject constructor(
     suspend fun deleteRestaurant(restaurant: RestaurantEntity) {
         restaurantDao.deleteRestaurant(restaurant)
     }
+
+    suspend fun deleteRestaurantsByRegionId(regionId: String) {
+        restaurantDao.deleteRestaurantsByRegionId(regionId)
+    }
 }

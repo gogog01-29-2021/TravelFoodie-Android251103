@@ -24,6 +24,7 @@ data class TripEntity(
     val startDate: Long,
     val endDate: Long,
     val theme: String,
+    val regionName: String = "", // Store region name for API regeneration
     val createdAt: Long = System.currentTimeMillis()
 )
 

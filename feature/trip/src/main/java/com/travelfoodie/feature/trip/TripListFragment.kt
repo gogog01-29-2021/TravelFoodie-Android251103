@@ -235,7 +235,10 @@ class TripListFragment : Fragment() {
 
                         // 🔗 STEP 1 COMPLETE: Set selected trip in shared ViewModel
                         if (tripId != null && regionName != null) {
+                            android.util.Log.d("TripListFragment", "Setting selected trip - tripId: $tripId, regionName: $regionName")
                             sharedViewModel.selectTrip(tripId, regionName)
+                        } else {
+                            android.util.Log.e("TripListFragment", "ERROR: tripId or regionName is null! tripId=$tripId, regionName=$regionName")
                         }
 
                         // Show success with clear instructions

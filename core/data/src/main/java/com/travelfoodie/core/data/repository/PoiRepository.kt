@@ -19,6 +19,7 @@ class PoiRepository @Inject constructor(
         regionId: String,
         regionName: String
     ): List<PoiEntity> {
+        android.util.Log.d("PoiRepository", "generateMockAttractions called - regionId: $regionId, regionName: $regionName")
         val mockPois = when {
             regionName.contains("서울") -> listOf(
                 PoiEntity(
@@ -210,7 +211,12 @@ class PoiRepository @Inject constructor(
             )
         }
 
+        android.util.Log.d("PoiRepository", "Inserting ${mockPois.size} POIs into database")
+        mockPois.forEach {
+            android.util.Log.d("PoiRepository", "  - POI: ${it.name}, regionId: ${it.regionId}")
+        }
         poiDao.insertPois(mockPois)
+        android.util.Log.d("PoiRepository", "POIs inserted successfully")
         return mockPois
     }
 

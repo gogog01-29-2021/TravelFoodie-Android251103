@@ -62,10 +62,12 @@ class TripViewModel @Inject constructor(
 
                 // 2. Auto-generate 5 AI attractions for the region
                 _creationState.value = TripCreationState.GeneratingAttractions
+                android.util.Log.d("TripViewModel", "Generating attractions for tripId: ${trip.tripId}, regionName: $regionName")
                 val attractions = poiRepository.generateMockAttractions(
                     regionId = trip.tripId,  // Use tripId as regionId for simplicity
                     regionName = regionName
                 )
+                android.util.Log.d("TripViewModel", "Generated ${attractions.size} attractions for tripId: ${trip.tripId}")
 
                 // 3. Auto-generate 10 restaurants for the region
                 _creationState.value = TripCreationState.GeneratingRestaurants

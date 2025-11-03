@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.travelfoodie.core.ui.SharedTripViewModel
 import com.travelfoodie.feature.attraction.databinding.FragmentAttractionListBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -17,8 +19,9 @@ class AttractionListFragment : Fragment() {
 
     private var _binding: FragmentAttractionListBinding? = null
     private val binding get() = _binding!!
-    
+
     private val viewModel: AttractionViewModel by viewModels()
+    private val sharedViewModel: SharedTripViewModel by activityViewModels()
     private lateinit var adapter: AttractionAdapter
 
     override fun onCreateView(
@@ -32,9 +35,25 @@ class AttractionListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         setupRecyclerView()
         observeAttractions()
+        observeSelectedTrip()
+    }
+
+    /**
+     * 🔗 CONNECTED: Observes SharedTripViewModel for trip selection
+     * When TripListFragment creates/selects a trip, this automatically loads attractions
+     */
+    private fun observeSelectedTrip() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sharedViewModel.selectedTripId.collect { tripId ->
+                if (tripId != null) {
+                    // Auto-load attractions for the selected trip
+                    viewModel.loadAttractions(tripId)
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {

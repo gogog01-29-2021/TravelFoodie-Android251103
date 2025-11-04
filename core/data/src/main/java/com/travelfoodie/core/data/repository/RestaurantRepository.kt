@@ -414,7 +414,17 @@ class RestaurantRepository @Inject constructor(
 
     private fun parseChatGPTResponse(jsonString: String): List<RestaurantEntity> {
         return try {
-            val jsonArray = JSONArray(jsonString.substringAfter("[").substringBefore("]") + "]")
+            // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
+            var cleanJson = jsonString.trim()
+            if (cleanJson.startsWith("```")) {
+                cleanJson = cleanJson
+                    .substringAfter("```json")
+                    .substringAfter("```")  // Handle both ```json and ``` markers
+                    .substringBeforeLast("```")
+                    .trim()
+            }
+
+            val jsonArray = JSONArray(cleanJson)
             val restaurants = mutableListOf<RestaurantEntity>()
 
             for (i in 0 until jsonArray.length()) {

@@ -15,8 +15,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,8 +54,14 @@ class TripViewModel @Inject constructor(
      *
      * Flow: Save Trip → Generate Attractions → Generate Restaurants → Schedule Notifications
      */
-    fun createTripWithAutoGeneration(trip: TripEntity, regionName: String, members: String) {
-        android.util.Log.d("TripViewModel", "createTripWithAutoGeneration START - tripId: ${trip.tripId}")
+    fun createTripWithAutoGeneration(
+        trip: TripEntity,
+        regionName: String,
+        members: String,
+        lat: Double = 37.5665, // Default to Seoul if not provided
+        lng: Double = 126.9780
+    ) {
+        android.util.Log.d("TripViewModel", "createTripWithAutoGeneration START - tripId: ${trip.tripId}, coords: ($lat, $lng)")
         viewModelScope.launch {
             try {
                 android.util.Log.d("TripViewModel", "Setting state: SavingTrip")
@@ -64,25 +72,39 @@ class TripViewModel @Inject constructor(
                 tripRepository.insertTrip(trip)
                 android.util.Log.d("TripViewModel", "Trip inserted successfully")
 
-                // 2. Auto-generate 5 AI attractions for the region
+                // 2. Create Region entity with actual coordinates from Google Places
+                val regionId = UUID.randomUUID().toString()
+                val region = com.travelfoodie.core.data.local.entity.RegionEntity(
+                    regionId = regionId,
+                    tripId = trip.tripId,
+                    name = regionName,
+                    lat = lat, // Use actual coordinates from Google Places Autocomplete
+                    lng = lng,
+                    order = 0
+                )
+                android.util.Log.d("TripViewModel", "Creating region: $regionId for trip: ${trip.tripId} at ($lat, $lng)")
+                tripRepository.insertRegion(region)
+                android.util.Log.d("TripViewModel", "Region created successfully")
+
+                // 3. Auto-generate 5 AI attractions for the region
                 android.util.Log.d("TripViewModel", "Setting state: GeneratingAttractions")
                 _creationState.value = TripCreationState.GeneratingAttractions
-                android.util.Log.d("TripViewModel", "Generating attractions for tripId: ${trip.tripId}, regionName: $regionName")
+                android.util.Log.d("TripViewModel", "Generating attractions for regionId: $regionId, regionName: $regionName")
                 val attractions = poiRepository.generateMockAttractions(
-                    regionId = trip.tripId,  // Use tripId as regionId for simplicity
+                    regionId = regionId,  // Use actual regionId
                     regionName = regionName
                 )
-                android.util.Log.d("TripViewModel", "Generated ${attractions.size} attractions for tripId: ${trip.tripId}")
+                android.util.Log.d("TripViewModel", "Generated ${attractions.size} attractions for regionId: $regionId")
 
-                // 3. Auto-generate 10 restaurants for the region
+                // 4. Auto-generate 10 restaurants for the region using actual coordinates
                 android.util.Log.d("TripViewModel", "Setting state: GeneratingRestaurants")
                 _creationState.value = TripCreationState.GeneratingRestaurants
-                android.util.Log.d("TripViewModel", "Generating restaurants")
+                android.util.Log.d("TripViewModel", "Generating restaurants for regionId: $regionId at ($lat, $lng)")
                 val restaurants = restaurantRepository.createMockRestaurants(
-                    regionId = trip.tripId,  // Use tripId as regionId for simplicity
+                    regionId = regionId,  // Use actual regionId
                     regionName = regionName,
-                    lat = 37.5665, // Default Seoul coordinates, should be from region
-                    lng = 126.9780
+                    lat = lat, // Use actual coordinates from Google Places
+                    lng = lng
                 )
                 android.util.Log.d("TripViewModel", "Generated ${restaurants.size} restaurants")
 
@@ -96,10 +118,11 @@ class TripViewModel @Inject constructor(
                 // 5. Success!
                 android.util.Log.d("TripViewModel", "Setting state: Success")
                 _creationState.value = TripCreationState.Success(
+                    regionId = regionId,
                     attractionsCount = attractions.size,
                     restaurantsCount = restaurants.size
                 )
-                android.util.Log.d("TripViewModel", "SUCCESS - attractionsCount: ${attractions.size}, restaurantsCount: ${restaurants.size}")
+                android.util.Log.d("TripViewModel", "SUCCESS - regionId: $regionId, attractionsCount: ${attractions.size}, restaurantsCount: ${restaurants.size}")
 
             } catch (e: Exception) {
                 android.util.Log.e("TripViewModel", "ERROR in createTripWithAutoGeneration: ${e.message}", e)
@@ -209,6 +232,10 @@ class TripViewModel @Inject constructor(
         _creationState.value = TripCreationState.Idle
     }
 
+    suspend fun getRegionsForTrip(tripId: String): List<com.travelfoodie.core.data.local.entity.RegionEntity> {
+        return tripRepository.getRegionsByTrip(tripId).first()
+    }
+
     /**
      * Regenerate attractions and restaurants for an existing trip
      */
@@ -216,24 +243,46 @@ class TripViewModel @Inject constructor(
         android.util.Log.d("TripViewModel", "regenerateAttractionsAndRestaurants - tripId: ${trip.tripId}, region: ${trip.regionName}")
         viewModelScope.launch {
             try {
+                // Get existing region for this trip (should exist)
+                val existingRegion = tripRepository.getRegionsByTrip(trip.tripId).first().firstOrNull()
+
+                val regionId = if (existingRegion != null) {
+                    android.util.Log.d("TripViewModel", "Using existing regionId: ${existingRegion.regionId}")
+                    existingRegion.regionId
+                } else {
+                    // Create new region if doesn't exist (shouldn't happen, but safe fallback)
+                    val newRegionId = UUID.randomUUID().toString()
+                    val newRegion = com.travelfoodie.core.data.local.entity.RegionEntity(
+                        regionId = newRegionId,
+                        tripId = trip.tripId,
+                        name = trip.regionName,
+                        lat = 37.5665,
+                        lng = 126.9780,
+                        order = 0
+                    )
+                    android.util.Log.d("TripViewModel", "Creating new regionId: $newRegionId")
+                    tripRepository.insertRegion(newRegion)
+                    newRegionId
+                }
+
                 // Delete old data first
                 android.util.Log.d("TripViewModel", "Deleting old attractions...")
-                poiRepository.deletePoiByRegionId(trip.tripId)
+                poiRepository.deletePoiByRegionId(regionId)
 
                 android.util.Log.d("TripViewModel", "Deleting old restaurants...")
-                restaurantRepository.deleteRestaurantsByRegionId(trip.tripId)
+                restaurantRepository.deleteRestaurantsByRegionId(regionId)
 
                 // Regenerate new data from APIs
                 android.util.Log.d("TripViewModel", "Regenerating attractions from ChatGPT + Google Places...")
                 val attractions = poiRepository.generateMockAttractions(
-                    regionId = trip.tripId,
+                    regionId = regionId,
                     regionName = trip.regionName
                 )
                 android.util.Log.d("TripViewModel", "Regenerated ${attractions.size} attractions")
 
                 android.util.Log.d("TripViewModel", "Regenerating restaurants...")
                 val restaurants = restaurantRepository.createMockRestaurants(
-                    regionId = trip.tripId,
+                    regionId = regionId,
                     regionName = trip.regionName,
                     lat = 37.5665,
                     lng = 126.9780
@@ -258,6 +307,7 @@ sealed class TripCreationState {
     object GeneratingRestaurants : TripCreationState()
     object SchedulingNotifications : TripCreationState()
     data class Success(
+        val regionId: String,
         val attractionsCount: Int,
         val restaurantsCount: Int
     ) : TripCreationState()

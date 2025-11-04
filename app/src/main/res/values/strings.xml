@@ -3,6 +3,7 @@
     <string name="app_name">TravelFoodie</string>
     
     <!-- Navigation -->
+    <string name="nav_map">지도</string>
     <string name="nav_trips">여행</string>
     <string name="nav_attractions">명소</string>
     <string name="nav_restaurants">맛집</string>

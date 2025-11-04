@@ -31,18 +31,23 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    
+
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
-    
+
     implementation(libs.lifecycle.runtime)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.coroutines.android)
-    
+
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    
+
+    // Google Maps & Places
+    implementation(libs.maps)
+    implementation(libs.places)
+    implementation(libs.location)
+
     implementation(libs.material)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)

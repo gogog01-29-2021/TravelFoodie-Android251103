@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.activity.viewModels
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelfoodie.core.ui.SharedTripViewModel
 import com.travelfoodie.core.data.local.entity.TripEntity
+import com.travelfoodie.core.data.remote.GooglePlacesApi
+import com.travelfoodie.core.data.BuildConfig
 import com.travelfoodie.feature.trip.databinding.DialogAddTripBinding
 import com.travelfoodie.feature.trip.databinding.FragmentTripListBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +27,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TripListFragment : Fragment() {
@@ -34,6 +38,14 @@ class TripListFragment : Fragment() {
     private val viewModel: TripViewModel by viewModels()
     private val sharedViewModel: SharedTripViewModel by activityViewModels()
     private lateinit var adapter: TripAdapter
+
+    @Inject
+    lateinit var googlePlacesApi: GooglePlacesApi
+
+    // Store selected place info
+    private var selectedPlaceName: String? = null
+    private var selectedPlaceLat: Double = 37.5665 // Default to Seoul
+    private var selectedPlaceLng: Double = 126.9780
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,22 +73,39 @@ class TripListFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = TripAdapter(
             onTripClick = { trip ->
-                // Select trip and load its attractions/restaurants via SharedViewModel
-                val regionName = "서울" // TODO: Get actual region from trip's regions
-                sharedViewModel.selectTrip(trip.tripId, regionName)
+                // Get the regionId for this trip, then select it
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val regions = viewModel.getRegionsForTrip(trip.tripId)
+                    val region = regions.firstOrNull()
 
-                Toast.makeText(
-                    requireContext(),
-                    "\"${trip.title}\" 여행을 선택했습니다",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    if (region != null) {
+                        android.util.Log.d("TripListFragment", "Selecting trip: ${trip.tripId}, regionId: ${region.regionId}, regionName: ${region.name}")
+                        sharedViewModel.selectTrip(region.regionId, region.name)
+
+                        // Show Snackbar with action to view attractions
+                        com.google.android.material.snackbar.Snackbar.make(
+                            binding.root,
+                            "\"${trip.title}\" 선택됨 - 명소/맛집 탭에서 확인하세요",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        android.util.Log.e("TripListFragment", "No region found for trip: ${trip.tripId}")
+                        com.google.android.material.snackbar.Snackbar.make(
+                            binding.root,
+                            "여행 정보를 찾을 수 없습니다",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                        ).setBackgroundTint(
+                            resources.getColor(com.google.android.material.R.color.design_default_color_error, null)
+                        ).show()
+                    }
+                }
             },
             onTripLongClick = { trip ->
                 // Show edit/delete menu
                 showTripOptionsDialog(trip)
             }
         )
-        
+
         binding.recyclerViewTrips.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@TripListFragment.adapter
@@ -97,9 +126,12 @@ class TripListFragment : Fragment() {
         val dialogBinding = DialogAddTripBinding.inflate(layoutInflater)
         var startDateMillis: Long = 0
         var endDateMillis: Long = 0
-        var createdTripId: String? = null
-        var createdRegionName: String? = null
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Reset selected place for this new dialog
+        selectedPlaceName = null
+        selectedPlaceLat = 37.5665 // Default to Seoul
+        selectedPlaceLng = 126.9780
 
         // Setup Start Date Picker
         dialogBinding.editStartDate.setOnClickListener {
@@ -133,6 +165,30 @@ class TripListFragment : Fragment() {
             ).show()
         }
 
+        // Setup Google Places Autocomplete for Region
+        val regionAutoComplete = dialogBinding.editRegion as AutoCompleteTextView
+        val placesAdapter = PlacesAutocompleteAdapter(
+            requireContext(),
+            googlePlacesApi,
+            com.travelfoodie.core.data.BuildConfig.GOOGLE_PLACES_API_KEY
+        )
+        regionAutoComplete.setAdapter(placesAdapter)
+        regionAutoComplete.threshold = 3 // Start suggestions after 3 characters
+
+        android.util.Log.d("TripListFragment", "Google Places Autocomplete setup complete")
+
+        // Handle place selection from dropdown
+        regionAutoComplete.setOnItemClickListener { parent, _, position, _ ->
+            val selectedPlace = placesAdapter.getPlaceAtPosition(position)
+            if (selectedPlace != null) {
+                selectedPlaceName = selectedPlace.description
+                selectedPlaceLat = selectedPlace.lat ?: 37.5665
+                selectedPlaceLng = selectedPlace.lng ?: 126.9780
+
+                android.util.Log.d("TripListFragment", "✅ Place selected: $selectedPlaceName at ($selectedPlaceLat, $selectedPlaceLng)")
+            }
+        }
+
         // Create Dialog
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogBinding.root)
@@ -147,9 +203,10 @@ class TripListFragment : Fragment() {
         dialogBinding.btnSave.setOnClickListener {
             android.util.Log.d("TripListFragment", "Save button clicked")
             val title = dialogBinding.editTripTitle.text.toString().trim()
-            val region = dialogBinding.editRegion.text.toString().trim()
+            // Use selected place name from autocomplete, or fallback to text input
+            val region = selectedPlaceName ?: dialogBinding.editRegion.text.toString().trim()
             val members = dialogBinding.editMembers.text.toString().trim()
-            android.util.Log.d("TripListFragment", "Input - title: $title, region: $region, members: $members")
+            android.util.Log.d("TripListFragment", "Input - title: $title, region: $region, members: $members, coords: ($selectedPlaceLat, $selectedPlaceLng)")
 
             // Get selected theme
             val theme = when (dialogBinding.chipGroupTheme.checkedChipId) {
@@ -176,7 +233,11 @@ class TripListFragment : Fragment() {
                     return@setOnClickListener
                 }
                 region.isEmpty() -> {
-                    Toast.makeText(requireContext(), "여행지를 입력하세요", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "여행지를 선택하세요", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                selectedPlaceName == null && dialogBinding.editRegion.text.toString().trim().isNotEmpty() -> {
+                    Toast.makeText(requireContext(), "드롭다운에서 여행지를 선택해주세요", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 startDateMillis > endDateMillis -> {
@@ -197,17 +258,18 @@ class TripListFragment : Fragment() {
                 regionName = region // Save region name for API regeneration
             )
 
-            // Store for navigation after success
-            createdTripId = tripId
-            createdRegionName = region
+            android.util.Log.d("TripListFragment", "Calling createTripWithAutoGeneration - tripId: $tripId, region: $region, coords: ($selectedPlaceLat, $selectedPlaceLng)")
+            // 🔥 THIS IS THE KEY - Trigger the complete auto-generation flow with actual coordinates
+            viewModel.createTripWithAutoGeneration(trip, region, members, selectedPlaceLat, selectedPlaceLng)
 
-            android.util.Log.d("TripListFragment", "Calling createTripWithAutoGeneration - tripId: $tripId, region: $region")
-            // 🔥 THIS IS THE KEY - Trigger the complete auto-generation flow
-            viewModel.createTripWithAutoGeneration(trip, region, members)
+            // Reset selected place for next dialog
+            selectedPlaceName = null
+            selectedPlaceLat = 37.5665
+            selectedPlaceLng = 126.9780
 
             dialog.dismiss()
-            android.util.Log.d("TripListFragment", "Showing creation progress - tripId: $createdTripId, region: $createdRegionName")
-            showCreationProgress(createdTripId, createdRegionName)
+            android.util.Log.d("TripListFragment", "Showing creation progress")
+            showCreationProgress(region)
         }
 
         dialog.show()
@@ -216,7 +278,7 @@ class TripListFragment : Fragment() {
     /**
      * Shows progress of the auto-generation flow and navigates to attractions on success
      */
-    private fun showCreationProgress(tripId: String?, regionName: String?) {
+    private fun showCreationProgress(regionName: String) {
         android.util.Log.d("TripListFragment", "showCreationProgress - observing creation state")
         var progressDialog: AlertDialog? = null
 
@@ -244,26 +306,37 @@ class TripListFragment : Fragment() {
                     is TripCreationState.Success -> {
                         progressDialog?.dismiss()
 
-                        // 🔗 STEP 1 COMPLETE: Set selected trip in shared ViewModel
-                        if (tripId != null && regionName != null) {
-                            android.util.Log.d("TripListFragment", "Setting selected trip - tripId: $tripId, regionName: $regionName")
-                            sharedViewModel.selectTrip(tripId, regionName)
-                        } else {
-                            android.util.Log.e("TripListFragment", "ERROR: tripId or regionName is null! tripId=$tripId, regionName=$regionName")
-                        }
+                        // 🔗 Set selected trip using regionId from the Success state
+                        android.util.Log.d("TripListFragment", "Setting selected trip - regionId: ${state.regionId}, regionName: $regionName")
+                        sharedViewModel.selectTrip(state.regionId, regionName)
 
-                        // Show success with clear instructions
-                        Toast.makeText(
-                            requireContext(),
-                            "✅ 여행 생성 완료!\n명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개 생성됨\n\n👉 명소/맛집 탭을 눌러 확인하세요!",
-                            Toast.LENGTH_LONG
+                        // Show success Snackbar with action button
+                        com.google.android.material.snackbar.Snackbar.make(
+                            binding.root,
+                            "✅ 여행 생성 완료! 명소 ${state.attractionsCount}개, 맛집 ${state.restaurantsCount}개",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                        ).setAction("확인하기") {
+                            // User can tap to manually navigate, but it's optional
+                        }.setBackgroundTint(
+                            resources.getColor(com.google.android.material.R.color.design_default_color_secondary, null)
+                        ).setActionTextColor(
+                            resources.getColor(android.R.color.white, null)
                         ).show()
 
                         viewModel.resetCreationState()
                     }
                     is TripCreationState.Error -> {
                         progressDialog?.dismiss()
-                        Toast.makeText(requireContext(), "오류: ${state.message}", Toast.LENGTH_SHORT).show()
+
+                        // Show error Snackbar
+                        com.google.android.material.snackbar.Snackbar.make(
+                            binding.root,
+                            "❌ 오류: ${state.message}",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                        ).setBackgroundTint(
+                            resources.getColor(com.google.android.material.R.color.design_default_color_error, null)
+                        ).show()
+
                         viewModel.resetCreationState()
                     }
                     is TripCreationState.Idle -> {
@@ -280,28 +353,45 @@ class TripListFragment : Fragment() {
             .setItems(arrayOf("선택하기", "명소/맛집 재생성", "삭제")) { _, which ->
                 when (which) {
                     0 -> {
-                        // Select trip
-                        sharedViewModel.selectTrip(trip.tripId, trip.regionName)
-                        Toast.makeText(
-                            requireContext(),
-                            "\"${trip.title}\" 여행을 선택했습니다",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        // Select trip - need to get regionId first
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val regions = viewModel.getRegionsForTrip(trip.tripId)
+                            val region = regions.firstOrNull()
+
+                            if (region != null) {
+                                sharedViewModel.selectTrip(region.regionId, region.name)
+                                com.google.android.material.snackbar.Snackbar.make(
+                                    binding.root,
+                                    "\"${trip.title}\" 선택됨 - 명소/맛집 탭에서 확인하세요",
+                                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                com.google.android.material.snackbar.Snackbar.make(
+                                    binding.root,
+                                    "여행 정보를 찾을 수 없습니다",
+                                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                                ).setBackgroundTint(
+                                    resources.getColor(com.google.android.material.R.color.design_default_color_error, null)
+                                ).show()
+                            }
+                        }
                     }
                     1 -> {
                         // Regenerate attractions and restaurants
                         if (trip.regionName.isEmpty()) {
-                            Toast.makeText(
-                                requireContext(),
+                            com.google.android.material.snackbar.Snackbar.make(
+                                binding.root,
                                 "지역 정보가 없어 재생성할 수 없습니다",
-                                Toast.LENGTH_SHORT
+                                com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                            ).setBackgroundTint(
+                                resources.getColor(com.google.android.material.R.color.design_default_color_error, null)
                             ).show()
                         } else {
                             viewModel.regenerateAttractionsAndRestaurants(trip)
-                            Toast.makeText(
-                                requireContext(),
-                                "명소와 맛집을 재생성하고 있습니다...",
-                                Toast.LENGTH_SHORT
+                            com.google.android.material.snackbar.Snackbar.make(
+                                binding.root,
+                                "🔄 명소와 맛집을 재생성하고 있습니다...",
+                                com.google.android.material.snackbar.Snackbar.LENGTH_LONG
                             ).show()
                         }
                     }
@@ -312,10 +402,10 @@ class TripListFragment : Fragment() {
                             .setMessage("\"${trip.title}\" 여행을 삭제하시겠습니까?")
                             .setPositiveButton("삭제") { _, _ ->
                                 viewModel.deleteTrip(trip)
-                                Toast.makeText(
-                                    requireContext(),
-                                    "여행이 삭제되었습니다",
-                                    Toast.LENGTH_SHORT
+                                com.google.android.material.snackbar.Snackbar.make(
+                                    binding.root,
+                                    "\"${trip.title}\" 여행이 삭제되었습니다",
+                                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
                                 ).show()
                             }
                             .setNegativeButton("취소", null)

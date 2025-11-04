@@ -138,7 +138,17 @@ class PoiRepository @Inject constructor(
 
     private fun parseChatGPTResponse(jsonString: String): List<PoiEntity> {
         return try {
-            val jsonArray = JSONArray(jsonString.substringAfter("[").substringBefore("]") + "]")
+            // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
+            var cleanJson = jsonString.trim()
+            if (cleanJson.startsWith("```")) {
+                cleanJson = cleanJson
+                    .substringAfter("```json")
+                    .substringAfter("```")  // Handle both ```json and ``` markers
+                    .substringBeforeLast("```")
+                    .trim()
+            }
+
+            val jsonArray = JSONArray(cleanJson)
             val attractions = mutableListOf<PoiEntity>()
 
             for (i in 0 until jsonArray.length()) {

@@ -27,7 +27,19 @@ data class PlaceResult(
     @Json(name = "formatted_address") val formattedAddress: String?,
     @Json(name = "rating") val rating: Double?,
     @Json(name = "types") val types: List<String>?,
-    @Json(name = "photos") val photos: List<PlacePhoto>?
+    @Json(name = "photos") val photos: List<PlacePhoto>?,
+    @Json(name = "geometry") val geometry: PlaceGeometry?
+)
+
+@JsonClass(generateAdapter = true)
+data class PlaceGeometry(
+    @Json(name = "location") val location: PlaceLocation
+)
+
+@JsonClass(generateAdapter = true)
+data class PlaceLocation(
+    @Json(name = "lat") val lat: Double,
+    @Json(name = "lng") val lng: Double
 )
 
 @JsonClass(generateAdapter = true)

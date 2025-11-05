@@ -1,5 +1,6 @@
 package com.travelfoodie.feature.attraction
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.travelfoodie.core.data.local.entity.PoiEntity
 import com.travelfoodie.core.ui.SharedTripViewModel
 import com.travelfoodie.feature.attraction.databinding.FragmentAttractionListBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,11 +64,33 @@ class AttractionListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = AttractionAdapter()
+        adapter = AttractionAdapter(
+            onShareClick = { poi -> shareAttraction(poi) }
+        )
         binding.recyclerViewAttractions.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@AttractionListFragment.adapter
         }
+    }
+
+    private fun shareAttraction(poi: PoiEntity) {
+        val shareText = """
+            🎯 ${poi.name}
+
+            📍 카테고리: ${poi.category}
+            ⭐ 평점: ${poi.rating}
+            ${poi.description?.let { "\n📝 $it" } ?: ""}
+
+            TravelFoodie에서 공유됨
+        """.trimIndent()
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            putExtra(Intent.EXTRA_SUBJECT, "${poi.name} - 명소 추천")
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "명소 공유하기"))
     }
 
     private fun observeAttractions() {

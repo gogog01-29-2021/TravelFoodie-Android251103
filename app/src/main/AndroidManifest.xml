@@ -39,6 +39,20 @@
             </intent-filter>
         </activity>
 
+        <!-- Kakao Login Redirect Activity -->
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="oauth"
+                    android:scheme="kakao${KAKAO_API_KEY}" />
+            </intent-filter>
+        </activity>
+
         <!-- Widget Provider -->
         <receiver
             android:name="com.travelfoodie.feature.widget.TripWidgetProvider"

@@ -27,6 +27,7 @@ android {
         }
         
         manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY", "")
+        manifestPlaceholders["KAKAO_API_KEY"] = properties.getProperty("KAKAO_API_KEY", "")
         
         buildConfigField("String", "KAKAO_API_KEY", "\"${properties.getProperty("KAKAO_API_KEY", "")}\"")
         buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties.getProperty("NAVER_CLIENT_ID", "")}\"")
@@ -83,6 +84,11 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.storage)
+
+    // OAuth / Social Login
+    implementation(libs.play.services.auth)
+    implementation(libs.kakao.user)
+    implementation(libs.naver.login)
 
     // Hilt
     implementation(libs.hilt)

@@ -23,6 +23,9 @@ activityKtx = "1.9.1"
 navigationKtx = "2.7.7"
 workManager = "2.9.0"
 mlKit = "16.0.0"
+kakaoSdk = "2.20.1"
+naverSdk = "5.9.1"
+playServicesAuth = "21.2.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -69,6 +72,11 @@ lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 paging = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
 mlkit-text = { module = "com.google.mlkit:text-recognition", version.ref = "mlKit" }
+
+# OAuth / Social Login
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+kakao-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakaoSdk" }
+naver-login = { module = "com.navercorp.nid:oauth", version.ref = "naverSdk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

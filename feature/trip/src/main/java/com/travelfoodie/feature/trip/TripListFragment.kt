@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelfoodie.core.ui.SharedTripViewModel
@@ -25,8 +26,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -62,11 +65,79 @@ class TripListFragment : Fragment() {
         android.util.Log.d("TripListFragment", "onViewCreated - SharedViewModel instance: ${sharedViewModel.hashCode()}")
 
         setupRecyclerView()
+        setupCalendar()
         observeTrips()
 
         binding.fabAddTrip.setOnClickListener {
             // Navigate to add trip screen
             showAddTripDialog()
+        }
+
+        // Close details card button
+        binding.btnCloseDetails.setOnClickListener {
+            binding.cardTripDetails.visibility = View.GONE
+        }
+    }
+
+    private fun setupCalendar() {
+        // Handle date selection on calendar
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }.timeInMillis
+
+            // Find trip that includes this date
+            val trip = viewModel.trips.value.find { trip ->
+                selectedDate >= trip.startDate && selectedDate <= trip.endDate
+            }
+
+            if (trip != null) {
+                showTripDetails(trip)
+            } else {
+                binding.cardTripDetails.visibility = View.GONE
+                com.google.android.material.snackbar.Snackbar.make(
+                    binding.root,
+                    "이 날짜에 예정된 여행이 없습니다",
+                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun showTripDetails(trip: TripEntity) {
+        val dateFormat = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+        val duration = TimeUnit.MILLISECONDS.toDays(trip.endDate - trip.startDate) + 1
+
+        binding.apply {
+            cardTripDetails.visibility = View.VISIBLE
+            textTripTitle.text = trip.title
+            textTripDates.text = "${dateFormat.format(Date(trip.startDate))} - ${dateFormat.format(Date(trip.endDate))} (${duration}일)"
+            textTripRegion.text = trip.regionName
+            textTripTheme.text = trip.theme
+
+            // Get members info if available (stored in members field)
+            // For now, we'll skip this as we don't have members stored in TripEntity
+
+            btnViewDetails.setOnClickListener {
+                // Select this trip - user can then switch to Attractions/Restaurants tab
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val regions = viewModel.getRegionsForTrip(trip.tripId)
+                    val region = regions.firstOrNull()
+
+                    if (region != null) {
+                        sharedViewModel.selectTrip(region.regionId, region.name)
+
+                        // Hide the details card
+                        binding.cardTripDetails.visibility = View.GONE
+
+                        com.google.android.material.snackbar.Snackbar.make(
+                            binding.root,
+                            "\"${trip.title}\" 선택됨 - 명소/맛집 탭에서 확인하세요",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
         }
     }
 

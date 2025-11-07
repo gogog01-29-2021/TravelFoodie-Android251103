@@ -1,9 +1,11 @@
 package com.travelfoodie.core.data.local.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
 @Entity(tableName = "users")
 data class UserEntity(
@@ -90,6 +92,7 @@ data class PoiEntity(
     val description: String?
 )
 
+@Parcelize
 @Entity(
     tableName = "restaurants",
     foreignKeys = [
@@ -115,7 +118,7 @@ data class RestaurantEntity(
     val hours: String?,
     val reservable: Boolean = false,
     val imageUrl: String?
-)
+) : Parcelable
 
 @Entity(
     tableName = "favorites",

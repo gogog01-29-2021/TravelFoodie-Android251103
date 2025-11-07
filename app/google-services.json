@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772589739359",
+    "project_id": "android-travel-foodie251105",
+    "storage_bucket": "android-travel-foodie251105.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772589739359:android:9d669136bc9ec850fcaaea",
+        "android_client_info": {
+          "package_name": "com.travelfoodie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772589739359-vogj6ahda7ms8m5n3f448gssou8r32kc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABMa286a75zHAspznX6idjglyQW1cU7hg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772589739359-vogj6ahda7ms8m5n3f448gssou8r32kc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

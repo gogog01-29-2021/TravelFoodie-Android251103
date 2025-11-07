@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:gravity="center">
+
+            <!-- App Logo/Icon -->
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="@string/app_name"
+                android:src="@mipmap/ic_launcher" />
+
+            <!-- Welcome Text -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TravelFoodie에 오신 것을 환영합니다"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="소셜 계정으로 간편하게 로그인하세요"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:layout_marginBottom="48dp" />
+
+            <!-- Google Sign In Button (Disabled until Firebase is configured) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_google_signin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Google로 로그인 (Firebase 설정 필요)"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:enabled="false"
+                app:icon="@android:drawable/ic_menu_search"
+                app:iconTint="@null"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:cornerRadius="8dp"
+                app:strokeColor="#DDDDDD"
+                app:strokeWidth="1dp"
+                app:backgroundTint="#F5F5F5"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Kakao Sign In Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_kakao_signin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Kakao로 로그인"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:icon="@android:drawable/ic_menu_search"
+                app:iconTint="@null"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:cornerRadius="8dp"
+                app:backgroundTint="#FEE500"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Naver Sign In Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_naver_signin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Naver로 로그인"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:icon="@android:drawable/ic_menu_search"
+                app:iconTint="@null"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:cornerRadius="8dp"
+                app:backgroundTint="#03C75A"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Skip/Guest Mode Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_skip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="둘러보기"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_marginTop="16dp" />
+
+            <!-- Terms and Privacy -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="로그인 시 이용약관 및 개인정보처리방침에 동의하게 됩니다"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:layout_marginTop="32dp"
+                android:paddingHorizontal="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

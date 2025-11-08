@@ -11,7 +11,8 @@ import com.travelfoodie.core.data.local.entity.PoiEntity
 import com.travelfoodie.feature.attraction.databinding.ItemAttractionBinding
 
 class AttractionAdapter(
-    private val onShareClick: ((PoiEntity) -> Unit)? = null
+    private val onShareClick: ((PoiEntity) -> Unit)? = null,
+    private val onSpeakClick: ((PoiEntity) -> Unit)? = null
 ) : ListAdapter<PoiEntity, AttractionAdapter.AttractionViewHolder>(AttractionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AttractionViewHolder {
@@ -20,7 +21,7 @@ class AttractionAdapter(
             parent,
             false
         )
-        return AttractionViewHolder(binding, onShareClick)
+        return AttractionViewHolder(binding, onShareClick, onSpeakClick)
     }
 
     override fun onBindViewHolder(holder: AttractionViewHolder, position: Int) {
@@ -29,7 +30,8 @@ class AttractionAdapter(
 
     class AttractionViewHolder(
         private val binding: ItemAttractionBinding,
-        private val onShareClick: ((PoiEntity) -> Unit)?
+        private val onShareClick: ((PoiEntity) -> Unit)?,
+        private val onSpeakClick: ((PoiEntity) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(poi: PoiEntity) {
@@ -48,6 +50,15 @@ class AttractionAdapter(
                 root.setOnLongClickListener {
                     onShareClick?.invoke(poi)
                     true
+                }
+
+                // TTS button - read description aloud
+                // Note: Add a speaker icon button to item_attraction.xml layout
+                // For now, use double-tap on description
+                textViewAttractionDescription.setOnClickListener {
+                    if (!poi.description.isNullOrEmpty()) {
+                        onSpeakClick?.invoke(poi)
+                    }
                 }
             }
         }

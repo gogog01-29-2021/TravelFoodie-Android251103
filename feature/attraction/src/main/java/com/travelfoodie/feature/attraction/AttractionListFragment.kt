@@ -2,6 +2,7 @@ package com.travelfoodie.feature.attraction
 
 import android.content.Intent
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.travelfoodie.core.ui.SharedTripViewModel
 import com.travelfoodie.feature.attraction.databinding.FragmentAttractionListBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.*
 
 @AndroidEntryPoint
 class AttractionListFragment : Fragment() {
@@ -25,6 +27,10 @@ class AttractionListFragment : Fragment() {
     private val viewModel: AttractionViewModel by viewModels()
     private val sharedViewModel: SharedTripViewModel by activityViewModels()
     private lateinit var adapter: AttractionAdapter
+
+    // Text-to-Speech
+    private var textToSpeech: TextToSpeech? = null
+    private var isTtsInitialized = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,9 +46,48 @@ class AttractionListFragment : Fragment() {
 
         android.util.Log.d("AttractionListFragment", "onViewCreated - SharedViewModel instance: ${sharedViewModel.hashCode()}")
 
+        initializeTextToSpeech()
         setupRecyclerView()
         observeAttractions()
         observeSelectedTrip()
+    }
+
+    private fun initializeTextToSpeech() {
+        textToSpeech = TextToSpeech(requireContext()) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val result = textToSpeech?.setLanguage(Locale.KOREAN)
+                isTtsInitialized = result != TextToSpeech.LANG_MISSING_DATA &&
+                        result != TextToSpeech.LANG_NOT_SUPPORTED
+
+                if (isTtsInitialized) {
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root,
+                        "명소 설명을 클릭하면 읽어드립니다",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun speakAttraction(poi: PoiEntity) {
+        if (!isTtsInitialized) {
+            com.google.android.material.snackbar.Snackbar.make(
+                binding.root,
+                "음성 읽기 기능을 사용할 수 없습니다",
+                com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val textToSpeak = "${poi.name}. ${poi.description ?: "설명이 없습니다."}"
+        textToSpeech?.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, null)
+
+        com.google.android.material.snackbar.Snackbar.make(
+            binding.root,
+            "🔊 음성으로 읽는 중...",
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     /**
@@ -65,7 +110,8 @@ class AttractionListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = AttractionAdapter(
-            onShareClick = { poi -> shareAttraction(poi) }
+            onShareClick = { poi -> shareAttraction(poi) },
+            onSpeakClick = { poi -> speakAttraction(poi) }
         )
         binding.recyclerViewAttractions.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -105,6 +151,9 @@ class AttractionListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+        textToSpeech = null
         _binding = null
     }
 }

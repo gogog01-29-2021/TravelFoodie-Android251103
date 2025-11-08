@@ -54,5 +54,5 @@ dependencies {
     implementation(libs.lottie)
 
     // Location services
-    implementation(libs.play.services.location)
+    implementation(libs.location)
 }

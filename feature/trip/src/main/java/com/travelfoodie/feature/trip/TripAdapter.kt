@@ -66,6 +66,14 @@ class TripAdapter(
 
                 root.setOnClickListener { onTripClick(trip) }
                 root.setOnLongClickListener {
+                    // Vibration feedback
+                    val vibrator = root.context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as android.os.Vibrator
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        vibrator.vibrate(android.os.VibrationEffect.createOneShot(50, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(50)
+                    }
                     onTripLongClick(trip)
                     true
                 }

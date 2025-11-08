@@ -181,6 +181,50 @@ class TripListFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@TripListFragment.adapter
         }
+
+        // Add swipe-to-delete functionality
+        val itemTouchHelper = androidx.recyclerview.widget.ItemTouchHelper(
+            object : androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(
+                0,
+                androidx.recyclerview.widget.ItemTouchHelper.LEFT or androidx.recyclerview.widget.ItemTouchHelper.RIGHT
+            ) {
+                override fun onMove(
+                    recyclerView: androidx.recyclerview.widget.RecyclerView,
+                    viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                    target: androidx.recyclerview.widget.RecyclerView.ViewHolder
+                ): Boolean = false
+
+                override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val trip = adapter.currentList[position]
+
+                    // Show confirmation dialog
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("여행 삭제")
+                        .setMessage("\"${trip.title}\" 여행을 삭제하시겠습니까?")
+                        .setPositiveButton("삭제") { _, _ ->
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                viewModel.deleteTrip(trip.tripId)
+                                com.google.android.material.snackbar.Snackbar.make(
+                                    binding.root,
+                                    "여행이 삭제되었습니다",
+                                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        .setNegativeButton("취소") { _, _ ->
+                            // Restore item
+                            adapter.notifyItemChanged(position)
+                        }
+                        .setOnCancelListener {
+                            // Restore item if dialog is dismissed
+                            adapter.notifyItemChanged(position)
+                        }
+                        .show()
+                }
+            }
+        )
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewTrips)
     }
 
     private fun observeTrips() {

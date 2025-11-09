@@ -21,10 +21,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [
-        Index("tripId"),
-        Index("senderId")
-    ]
+    indices = [Index("tripId"), Index("senderId")]
 )
 data class ChatMessageEntity(
     @PrimaryKey

@@ -15,9 +15,10 @@ import com.travelfoodie.core.data.local.entity.*
         RestaurantEntity::class,
         FavoriteEntity::class,
         NotifScheduleEntity::class,
-        ReceiptEntity::class
+        ReceiptEntity::class,
+        ChatMessageEntity::class
     ],
-    version = 2, // Added regionName to TripEntity
+    version = 3, // Added ReceiptEntity and ChatMessageEntity
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,4 +31,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun notifScheduleDao(): NotifScheduleDao
     abstract fun receiptDao(): ReceiptDao
+    abstract fun chatMessageDao(): ChatMessageDao
 }

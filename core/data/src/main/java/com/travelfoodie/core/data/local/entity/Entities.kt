@@ -164,13 +164,3 @@ data class NotifScheduleEntity(
     val type: String, // "D-7", "D-3", "D-0"
     val sent: Boolean = false
 )
-
-@Entity(tableName = "receipts")
-data class ReceiptEntity(
-    @PrimaryKey val receiptId: String,
-    val restaurantId: String?,
-    val merchantName: String,
-    val total: Double,
-    val imageUrl: String,
-    val createdAt: Long = System.currentTimeMillis()
-)

@@ -204,7 +204,7 @@ class TripListFragment : Fragment() {
                         .setMessage("\"${trip.title}\" 여행을 삭제하시겠습니까?")
                         .setPositiveButton("삭제") { _, _ ->
                             viewLifecycleOwner.lifecycleScope.launch {
-                                viewModel.deleteTrip(trip.tripId)
+                                viewModel.deleteTrip(trip)
                                 com.google.android.material.snackbar.Snackbar.make(
                                     binding.root,
                                     "여행이 삭제되었습니다",

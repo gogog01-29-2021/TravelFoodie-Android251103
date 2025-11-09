@@ -35,6 +35,9 @@ interface TripDao {
 
     @Query("SELECT * FROM trips WHERE startDate >= :currentTime ORDER BY startDate ASC LIMIT 1")
     suspend fun getNextTrip(currentTime: Long): TripEntity?
+
+    @Query("SELECT * FROM trips WHERE startDate >= :currentTime ORDER BY startDate ASC")
+    suspend fun getUpcomingTrips(currentTime: Long): List<TripEntity>
 }
 
 @Dao
@@ -54,6 +57,9 @@ interface RegionDao {
     @Query("SELECT * FROM regions WHERE tripId = :tripId ORDER BY `order` ASC")
     fun getRegionsByTrip(tripId: String): Flow<List<RegionEntity>>
 
+    @Query("SELECT * FROM regions WHERE tripId = :tripId ORDER BY `order` ASC")
+    suspend fun getRegionsByTripId(tripId: String): List<RegionEntity>
+
     @Query("SELECT * FROM regions WHERE regionId = :regionId")
     suspend fun getRegionById(regionId: String): RegionEntity?
 
@@ -72,6 +78,9 @@ interface PoiDao {
     @Query("SELECT * FROM pois WHERE regionId = :regionId")
     fun getPoisByRegion(regionId: String): Flow<List<PoiEntity>>
 
+    @Query("SELECT * FROM pois WHERE regionId = :regionId")
+    suspend fun getPoiByRegionId(regionId: String): List<PoiEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPoi(poi: PoiEntity)
 
@@ -89,6 +98,9 @@ interface PoiDao {
 interface RestaurantDao {
     @Query("SELECT * FROM restaurants WHERE regionId = :regionId ORDER BY rating DESC")
     fun getRestaurantsByRegion(regionId: String): Flow<List<RestaurantEntity>>
+
+    @Query("SELECT * FROM restaurants WHERE regionId = :regionId ORDER BY rating DESC")
+    suspend fun getRestaurantsByRegionId(regionId: String): List<RestaurantEntity>
 
     @Query("SELECT * FROM restaurants WHERE restaurantId = :restaurantId")
     suspend fun getRestaurantById(restaurantId: String): RestaurantEntity?

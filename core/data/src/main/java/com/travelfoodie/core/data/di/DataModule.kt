@@ -82,6 +82,9 @@ object DataModule {
     fun provideReceiptDao(database: AppDatabase) = database.receiptDao()
 
     @Provides
+    fun provideChatMessageDao(database: AppDatabase) = database.chatMessageDao()
+
+    @Provides
     @Singleton
     fun provideMoshi(): Moshi {
         return Moshi.Builder()

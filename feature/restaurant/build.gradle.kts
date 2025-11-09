@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
 
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
@@ -56,3 +57,5 @@ dependencies {
     // Location services
     implementation(libs.location)
 }
+
+

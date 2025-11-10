@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.TravelFoodie" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorOnPrimary">@color/white</item>
-        
-        <item name="colorSecondary">@color/accent</item>
-        <item name="colorSecondaryVariant">@color/accent_light</item>
-        <item name="colorOnSecondary">@color/white</item>
-        
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorError">@color/error</item>
-        
-        <item name="android:statusBarColor">@color/primary</item>
-        <item name="android:navigationBarColor">@color/white</item>
+
+        <item name="colorPrimary">@color/tf_primary</item>
+        <item name="colorOnPrimary">@color/tf_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/tf_primary_light</item>
+        <item name="colorOnPrimaryContainer">@color/tf_primary_dark</item>
+
+        <item name="colorSecondary">@color/tf_secondary</item>
+        <item name="colorOnSecondary">@color/tf_onSecondary</item>
+
+
+        <item name="android:colorBackground">@color/tf_background</item>
+        <item name="colorOnBackground">@color/tf_onBackground</item>
+ㄴ
+        <item name="colorSurface">@color/tf_surface</item>
+        <item name="colorOnSurface">@color/tf_onSurface</item>
+
+        <item name="colorSurfaceVariant">@color/tf_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/tf_onSurfaceVariant</item>
+
+
+        <item name="colorOutline">@color/tf_outline</item>
+
+        <item name="colorError">@color/tf_error</item>
+        <item name="colorOnError">@color/tf_onError</item>
+
+
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/tf_background</item>
+
     </style>
 </resources>

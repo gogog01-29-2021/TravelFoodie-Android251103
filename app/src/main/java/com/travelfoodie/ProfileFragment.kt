@@ -392,7 +392,7 @@ class ProfileFragment : Fragment() {
             // Use web sharer as fallback
             val sharerUrl = WebSharerClient.instance.makeDefaultUrl(defaultFeed)
             try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(sharerUrl)))
+                startActivity(Intent(Intent.ACTION_VIEW, sharerUrl))
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "카카오톡 공유를 사용할 수 없습니다", Toast.LENGTH_SHORT).show()
             }

@@ -88,6 +88,7 @@ dependencies {
     // OAuth / Social Login
     implementation(libs.play.services.auth)
     implementation(libs.kakao.user)
+    implementation(libs.kakao.share)
     implementation(libs.naver.login)
 
     // Hilt
@@ -113,6 +114,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
 
     // Location & Maps
     implementation(libs.location)

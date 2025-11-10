@@ -1,20 +1,37 @@
 package com.travelfoodie
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.kakao.sdk.share.ShareClient
+import com.kakao.sdk.share.WebSharerClient
+import com.kakao.sdk.template.model.Content
+import com.kakao.sdk.template.model.FeedTemplate
+import com.kakao.sdk.template.model.Link
 import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.travelfoodie.databinding.FragmentProfileBinding
+import com.travelfoodie.ocr.ReceiptOcrHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,6 +42,57 @@ class ProfileFragment : Fragment() {
 
     @Inject
     lateinit var auth: FirebaseAuth
+
+    private var textToSpeech: TextToSpeech? = null
+    private lateinit var ocrHelper: ReceiptOcrHelper
+    private var selectedImageUri: Uri? = null
+    private var lastOcrResult: String? = null
+
+    // STT launcher
+    private val speechRecognizerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val results = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val spokenText = results?.get(0) ?: ""
+            Toast.makeText(requireContext(), "인식된 텍스트: $spokenText", Toast.LENGTH_LONG).show()
+
+            // Optionally speak it back using TTS
+            textToSpeech?.speak(spokenText, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+
+    // Image picker for OCR
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            performOcr(it)
+        }
+    }
+
+    // Camera permission for OCR
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            pickImageLauncher.launch("image/*")
+        } else {
+            Toast.makeText(requireContext(), "카메라 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Audio permission for STT
+    private val audioPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startSpeechRecognition()
+        } else {
+            Toast.makeText(requireContext(), "마이크 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +105,16 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize TTS
+        textToSpeech = TextToSpeech(requireContext()) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.language = Locale.KOREAN
+            }
+        }
+
+        // Initialize OCR Helper
+        ocrHelper = ReceiptOcrHelper(requireContext())
 
         val sharedPrefs = requireContext().getSharedPreferences("TravelFoodie", Context.MODE_PRIVATE)
         val loginProvider = sharedPrefs.getString("login_provider", null)
@@ -132,6 +210,16 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "이용약관", Toast.LENGTH_SHORT).show()
             }
 
+            // Features - logged in mode
+            btnStt.setOnClickListener { handleSttClick() }
+            btnTts.setOnClickListener { handleTtsClick() }
+            btnOcr.setOnClickListener { handleOcrClick() }
+
+            // Features - guest mode
+            btnGuestStt.setOnClickListener { handleSttClick() }
+            btnGuestTts.setOnClickListener { handleTtsClick() }
+            btnGuestOcr.setOnClickListener { handleOcrClick() }
+
             btnSignout.setOnClickListener {
                 signOut()
             }
@@ -205,8 +293,116 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // STT Handler
+    private fun handleSttClick() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            startSpeechRecognition()
+        } else {
+            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    private fun startSpeechRecognition() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.KOREAN)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "음성을 입력하세요")
+        }
+        try {
+            speechRecognizerLauncher.launch(intent)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "음성인식을 사용할 수 없습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // TTS Handler
+    private fun handleTtsClick() {
+        val testText = "안녕하세요! TravelFoodie 음성출력 기능입니다. 여행과 맛집 정보를 음성으로 들어보세요."
+        textToSpeech?.speak(testText, TextToSpeech.QUEUE_FLUSH, null, null)
+        Toast.makeText(requireContext(), "음성출력 테스트 중...", Toast.LENGTH_SHORT).show()
+    }
+
+    // OCR Handler
+    private fun handleOcrClick() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            pickImageLauncher.launch("image/*")
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+    }
+
+    private fun performOcr(imageUri: Uri) {
+        Toast.makeText(requireContext(), "영수증을 스캔하는 중...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val result = ocrHelper.extractTextFromImage(imageUri)
+                lastOcrResult = result
+
+                // Show result and offer to share
+                android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("영수증 스캔 완료")
+                    .setMessage("인식된 텍스트:\n\n$result")
+                    .setPositiveButton("카카오톡 공유") { _, _ ->
+                        shareViaKakao(result)
+                    }
+                    .setNegativeButton("닫기", null)
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "OCR 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // KakaoTalk Sharing
+    private fun shareViaKakao(receiptText: String) {
+        val defaultFeed = FeedTemplate(
+            content = Content(
+                title = "TravelFoodie 영수증",
+                description = receiptText.take(100) + if (receiptText.length > 100) "..." else "",
+                imageUrl = "https://via.placeholder.com/300x200.png?text=Receipt",
+                link = Link(
+                    webUrl = "https://travelfoodie.com",
+                    mobileWebUrl = "https://travelfoodie.com"
+                )
+            )
+        )
+
+        // Check if KakaoTalk is available
+        if (ShareClient.instance.isKakaoTalkSharingAvailable(requireContext())) {
+            ShareClient.instance.shareDefault(requireContext(), defaultFeed) { sharingResult, error ->
+                if (error != null) {
+                    Toast.makeText(requireContext(), "카카오톡 공유 실패: ${error.message}", Toast.LENGTH_SHORT).show()
+                } else if (sharingResult != null) {
+                    Toast.makeText(requireContext(), "카카오톡으로 공유되었습니다", Toast.LENGTH_SHORT).show()
+
+                    // Open KakaoTalk
+                    startActivity(sharingResult.intent)
+                }
+            }
+        } else {
+            // Use web sharer as fallback
+            val sharerUrl = WebSharerClient.instance.makeDefaultUrl(defaultFeed)
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(sharerUrl)))
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "카카오톡 공유를 사용할 수 없습니다", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
         _binding = null
     }
 }

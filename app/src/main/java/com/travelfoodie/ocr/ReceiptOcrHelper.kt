@@ -13,6 +13,17 @@ class ReceiptOcrHelper(private val context: Context) {
 
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
+    suspend fun extractTextFromImage(imageUri: Uri): String {
+        val image = InputImage.fromFilePath(context, imageUri)
+        val result = recognizer.process(image).await()
+        val extractedText = result.text
+        return if (extractedText.isBlank()) {
+            "텍스트를 인식할 수 없습니다."
+        } else {
+            extractedText
+        }
+    }
+
     suspend fun scanReceipt(imageUri: Uri): ReceiptData {
         val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
         return scanReceipt(bitmap)

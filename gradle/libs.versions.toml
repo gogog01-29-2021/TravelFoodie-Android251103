@@ -77,6 +77,7 @@ mlkit-text = { module = "com.google.mlkit:text-recognition", version.ref = "mlKi
 # OAuth / Social Login
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 kakao-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakaoSdk" }
+kakao-share = { module = "com.kakao.sdk:v2-share", version.ref = "kakaoSdk" }
 naver-login = { module = "com.navercorp.nid:oauth", version.ref = "naverSdk" }
 
 [plugins]

@@ -4,9 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/tf_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/tf_outline"
+    app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -17,128 +22,120 @@
             android:id="@+id/text_view_trip_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="@color/tf_onSurface"
             app:layout_constraintEnd_toStartOf="@id/text_view_d_day"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="서울 문화 여행" />
+            tools:text="낭만 가득한 여수 밤바다 여행" />
 
-        <TextView
+        <com.google.android.material.chip.Chip
             android:id="@+id/text_view_d_day"
+            style="@style/Widget.Material3.Chip.Suggestion"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/primary"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:layout_height="36dp"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            app:chipBackgroundColor="@color/tf_primary"
+            app:chipMinHeight="32dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/text_view_trip_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="D-5" />
 
-        <!-- Calendar Icon + Date Range Visual -->
         <ImageView
             android:id="@+id/icon_calendar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            android:src="@android:drawable/ic_menu_today"
-            android:tint="@color/primary"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/ic_calendar_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_view_trip_title" />
+            app:layout_constraintTop_toBottomOf="@id/text_view_trip_title"
+            app:tint="@color/tf_primary" />
+
+        <TextView
+            android:id="@+id/text_view_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintBottom_toBottomOf="@id/icon_calendar"
+            app:layout_constraintStart_toEndOf="@id/icon_calendar"
+            app:layout_constraintTop_toTopOf="@id/icon_calendar"
+            tools:text="2025년 3월 20일" />
+
+        <TextView
+            android:id="@+id/text_view_end_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintBaseline_toBaselineOf="@id/text_view_start_date"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="~ 3월 22일" />
 
         <LinearLayout
             android:id="@+id/date_range_container"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_height="0dp"
             android:orientation="vertical"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/icon_calendar"
-            app:layout_constraintTop_toTopOf="@id/icon_calendar">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Date Labels Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/date_range_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:progress="60"
+            app:indicatorColor="@color/tf_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/text_view_start_date"
+            app:layout_constraintTop_toBottomOf="@id/text_view_start_date"
+            app:trackColor="@color/tf_outline"
+            app:trackCornerRadius="4dp" />
 
-                <TextView
-                    android:id="@+id/text_view_start_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    tools:text="03/20" />
+        <View
+            android:id="@+id/date_range_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/text_view_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:gravity="center"
-                    tools:text="3일" />
-
-                <TextView
-                    android:id="@+id/text_view_end_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    tools:text="03/22" />
-            </LinearLayout>
-
-            <!-- Visual Date Range Bar -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_marginTop="4dp">
-
-                <!-- Background bar -->
-                <View
-                    android:id="@+id/date_range_background"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#E0E0E0"
-                    android:alpha="0.5" />
-
-                <!-- Colored progress bar showing trip range -->
-                <View
-                    android:id="@+id/date_range_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/primary" />
-
-                <!-- Current date indicator (if trip is ongoing) -->
-                <View
-                    android:id="@+id/current_date_indicator"
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/white"
-                    android:visibility="gone" />
-            </FrameLayout>
-
-        </LinearLayout>
+        <View
+            android:id="@+id/current_date_indicator"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/text_view_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="3일" />
+
+
+        <com.google.android.material.chip.Chip
             android:id="@+id/text_view_trip_theme"
+            style="@style/Widget.Material3.Chip.Suggestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/theme_culture"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            android:textColor="@color/white"
-            android:textSize="12sp"
+            app:chipBackgroundColor="@color/tf_surfaceVariant"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/date_range_container"
+            app:layout_constraintTop_toBottomOf="@id/date_range_bar"
             tools:text="문화" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

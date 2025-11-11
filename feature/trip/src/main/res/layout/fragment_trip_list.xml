@@ -1,30 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tf_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Calendar View -->
-        <CalendarView
-            android:id="@+id/calendar_view"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp" />
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/tf_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/tf_outline"
+            app:strokeWidth="1dp">
 
-        <!-- Trip Details Card (shown when trip is clicked) -->
+            <CalendarView
+                android:id="@+id/calendar_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_trip_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:visibility="gone"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="8dp">
+            app:cardBackgroundColor="@color/tf_surfaceVariant"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/tf_outline"
+            app:strokeWidth="1dp"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,63 +51,110 @@
                     android:id="@+id/text_trip_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="@color/tf_onSurfaceVariant"
+                    tools:text="서울 문화 여행" />
 
-                <TextView
-                    android:id="@+id/text_trip_dates"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/text_trip_region"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:drawableStart="@android:drawable/ic_dialog_map"
-                    android:drawablePadding="8dp"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:id="@+id/text_trip_members"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:drawableStart="@android:drawable/ic_menu_myplaces"
-                    android:drawablePadding="8dp"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:id="@+id/text_trip_theme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@color/theme_culture"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar_24"
+                        app:tint="@color/tf_primary" />
+
+                    <TextView
+                        android:id="@+id/text_trip_dates"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="@color/tf_onSurfaceVariant"
+                        tools:text="2025. 11. 11 - 2025. 11. 15 (5일)" />
+                </LinearLayout>
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/date_range_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:progress="50"
+                    app:indicatorColor="@color/tf_primary"
+                    app:trackColor="@color/tf_outline"
+                    app:trackCornerRadius="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/date_range_container"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="invisible" />
+
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/text_trip_region"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_location_24"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/tf_onSurfaceVariant"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="@color/tf_onSurfaceVariant"
+                    tools:text="서울, 대한민국" />
+
+                <TextView
+                    android:id="@+id/text_trip_members"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawableStart="@drawable/ic_group_24"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/tf_onSurfaceVariant"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="@color/tf_onSurfaceVariant"
+                    tools:text="친구 2명과 함께" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/text_trip_theme"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:chipBackgroundColor="@color/tf_surface"
+                    app:chipIcon="@drawable/ic_palette_24"
+                    app:chipStrokeColor="@color/tf_outline"
+                    app:chipStrokeWidth="1dp"
+                    tools:text="문화" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_close_details"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginEnd="8dp"
-                        android:text="닫기"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
+                        android:layout_weight="1"
+                        android:text="닫기" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_view_details"
@@ -101,29 +163,32 @@
                         android:layout_weight="1"
                         android:text="명소/맛집 보기" />
                 </LinearLayout>
-
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Trips List with color indicators -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_trips"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            android:padding="16dp" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="88dp"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_trip" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/text_view_empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/no_data"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+        </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -133,6 +198,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="@string/trip_add"
-        app:srcCompat="@android:drawable/ic_input_add" />
-
+        app:backgroundTint="@color/tf_primary"
+        app:srcCompat="@drawable/ic_add_24"
+        app:tint="@color/tf_onPrimary" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

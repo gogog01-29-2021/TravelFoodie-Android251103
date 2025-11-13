@@ -179,18 +179,6 @@ interface ReceiptDao {
 }
 
 @Dao
-interface ChatMessageDao {
-    @Query("SELECT * FROM chat_messages ORDER BY timestamp ASC")
-    fun getAllMessages(): Flow<List<ChatMessageEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMessage(message: ChatMessageEntity)
-
-    @Query("DELETE FROM chat_messages")
-    suspend fun deleteAllMessages()
-}
-
-@Dao
 interface FriendDao {
     @Query("SELECT * FROM friends WHERE userId = :userId ORDER BY name ASC")
     fun getFriendsByUser(userId: String): Flow<List<FriendEntity>>

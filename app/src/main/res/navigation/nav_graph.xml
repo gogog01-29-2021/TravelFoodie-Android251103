@@ -31,11 +31,19 @@
         <action
             android:id="@+id/action_profile_to_login"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_profile_to_travel_companion"
+            app:destination="@id/travelCompanionFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.travelfoodie.LoginFragment"
         android:label="로그인" />
+
+    <fragment
+        android:id="@+id/travelCompanionFragment"
+        android:name="com.travelfoodie.TravelCompanionFragment"
+        android:label="여행 동반자" />
 
 </navigation>

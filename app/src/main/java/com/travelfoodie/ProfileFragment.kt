@@ -227,6 +227,14 @@ class ProfileFragment : Fragment() {
             btnGoToLogin.setOnClickListener {
                 navigateToLogin()
             }
+
+            btnTravelCompanion.setOnClickListener {
+                navigateToTravelCompanion()
+            }
+
+            btnAddWidget.setOnClickListener {
+                addWidgetToHomeScreen()
+            }
         }
     }
 
@@ -290,6 +298,45 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profile_to_login)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "로그인 화면으로 이동할 수 없습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToTravelCompanion() {
+        try {
+            findNavController().navigate(R.id.action_profile_to_travel_companion)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "여행 동반자 화면으로 이동할 수 없습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun addWidgetToHomeScreen() {
+        try {
+            // Launch the widget picker to allow user to add the widget to home screen
+            val appWidgetManager = android.appwidget.AppWidgetManager.getInstance(requireContext())
+            val myProvider = android.content.ComponentName(requireContext(), com.travelfoodie.feature.widget.TripWidgetProvider::class.java)
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                // For Android O and above, request to pin the widget
+                if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                    appWidgetManager.requestPinAppWidget(myProvider, null, null)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "위젯 고정 기능이 지원되지 않습니다\n홈 화면에서 위젯을 수동으로 추가해주세요",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } else {
+                // For older versions, show instruction
+                Toast.makeText(
+                    requireContext(),
+                    "홈 화면에서 길게 눌러 위젯을 추가해주세요",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "위젯 추가 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            android.util.Log.e("ProfileFragment", "Error adding widget", e)
         }
     }
 

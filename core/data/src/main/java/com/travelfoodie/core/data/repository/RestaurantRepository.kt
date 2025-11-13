@@ -74,26 +74,29 @@ class RestaurantRepository @Inject constructor(
             restaurants
         } catch (e: Exception) {
             e.printStackTrace()
-            // Return mock data if API fails
-            createMockRestaurants(regionId, regionName, lat, lng)
+            // Return mock data if API fails with default theme and members
+            createMockRestaurants(regionId, regionName, "액티브", "1", lat, lng)
         }
     }
 
     suspend fun createMockRestaurants(
         regionId: String,
         regionName: String,
+        theme: String = "액티브",
+        members: String = "1",
         lat: Double,
         lng: Double
     ): List<RestaurantEntity> = coroutineScope {
         android.util.Log.d("RestaurantRepository", "=== createMockRestaurants START ===")
         android.util.Log.d("RestaurantRepository", "regionId: $regionId, regionName: $regionName")
+        android.util.Log.d("RestaurantRepository", "theme: $theme, members: $members")
         android.util.Log.d("RestaurantRepository", "OpenAI Key configured: ${BuildConfig.OPENAI_API_KEY.isNotEmpty()}")
         android.util.Log.d("RestaurantRepository", "Google Places Key configured: ${BuildConfig.GOOGLE_PLACES_API_KEY.isNotEmpty()}")
 
         try {
-            // Call both APIs in parallel
-            val chatGptDeferred = async { getRestaurantsFromChatGPT(regionName) }
-            val googlePlacesDeferred = async { getRestaurantsFromGooglePlaces(regionName) }
+            // Call both APIs in parallel with user preferences
+            val chatGptDeferred = async { getRestaurantsFromChatGPT(regionName, theme, members) }
+            val googlePlacesDeferred = async { getRestaurantsFromGooglePlaces(regionName, theme) }
 
             val chatGptResults = try {
                 chatGptDeferred.await()
@@ -365,22 +368,46 @@ class RestaurantRepository @Inject constructor(
     }
 
     /**
-     * Get restaurant recommendations from ChatGPT
+     * Get restaurant recommendations from ChatGPT with user preferences
      */
-    private suspend fun getRestaurantsFromChatGPT(regionName: String): List<RestaurantEntity> {
+    private suspend fun getRestaurantsFromChatGPT(
+        regionName: String,
+        theme: String,
+        members: String
+    ): List<RestaurantEntity> {
         if (BuildConfig.OPENAI_API_KEY.isEmpty()) {
             android.util.Log.w("RestaurantRepository", "OpenAI API key not configured")
             return emptyList()
         }
 
         return try {
+            // Build context based on user preferences
+            val cuisineContext = when {
+                theme.contains("문화") -> "traditional local cuisine, authentic restaurants"
+                theme.contains("액티브") -> "quick bites, energy-boosting meals, casual dining"
+                theme.contains("휴식") -> "cozy cafes, fine dining, relaxing atmosphere"
+                theme.contains("쇼핑") -> "trendy restaurants, food courts, quick meals"
+                theme.contains("맛집") -> "famous local food, specialty restaurants, food streets"
+                else -> "popular restaurants"
+            }
+
+            val groupSizeContext = when (members.toIntOrNull() ?: 1) {
+                1 -> "solo-friendly spots with counter seating"
+                2 -> "romantic dining, intimate ambiance"
+                in 3..4 -> "family restaurants with variety menu"
+                else -> "large group friendly with spacious seating and shared dishes"
+            }
+
             val prompt = """
-                Recommend 5 must-visit restaurants in $regionName.
+                Recommend 5 must-visit restaurants in $regionName based on these preferences:
+                - Travel theme: $theme ($cuisineContext)
+                - Group size: $members people ($groupSizeContext)
+
                 For each restaurant, provide:
                 - name: restaurant name
                 - category: one of (한식, 중식, 일식, 양식, 카페, 분식, 치킨, 베이커리, 해산물, 기타)
                 - rating: a rating between 4.0 and 5.0
-                - menu: 3 popular menu items (comma separated)
+                - menu: 3 popular menu items that suit the group size (comma separated)
 
                 Return ONLY a JSON array in this exact format:
                 [{"name":"...", "category":"...", "rating":4.5, "menu":"..."}]
@@ -455,16 +482,31 @@ class RestaurantRepository @Inject constructor(
     }
 
     /**
-     * Get restaurants from Google Places API
+     * Get restaurants from Google Places API with theme filtering
      */
-    private suspend fun getRestaurantsFromGooglePlaces(regionName: String): List<RestaurantEntity> {
+    private suspend fun getRestaurantsFromGooglePlaces(
+        regionName: String,
+        theme: String
+    ): List<RestaurantEntity> {
         if (BuildConfig.GOOGLE_PLACES_API_KEY.isEmpty()) {
             android.util.Log.w("RestaurantRepository", "Google Places API key not configured")
             return emptyList()
         }
 
         return try {
-            val query = "$regionName restaurants"
+            // Build query based on theme
+            val cuisineKeyword = when {
+                theme.contains("문화") -> "traditional local restaurant"
+                theme.contains("액티브") -> "casual dining quick food"
+                theme.contains("휴식") -> "fine dining cafe"
+                theme.contains("쇼핑") -> "trendy restaurant food court"
+                theme.contains("맛집") -> "famous restaurant specialty food"
+                else -> "restaurant"
+            }
+
+            val query = "$regionName $cuisineKeyword"
+            android.util.Log.d("RestaurantRepository", "Google Places query: $query")
+
             val response = googlePlacesApi.searchPlaces(
                 query = query,
                 apiKey = BuildConfig.GOOGLE_PLACES_API_KEY,

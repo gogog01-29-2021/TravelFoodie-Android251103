@@ -27,17 +27,24 @@ class PoiRepository @Inject constructor(
 
     suspend fun generateMockAttractions(
         regionId: String,
-        regionName: String
+        regionName: String,
+        theme: String = "액티브",
+        members: String = "1",
+        startDate: Long = 0L,
+        endDate: Long = 0L,
+        lat: Double = 37.5665,
+        lng: Double = 126.9780
     ): List<PoiEntity> = coroutineScope {
         android.util.Log.d("PoiRepository", "=== generateMockAttractions START ===")
         android.util.Log.d("PoiRepository", "regionId: $regionId, regionName: $regionName")
+        android.util.Log.d("PoiRepository", "theme: $theme, members: $members, dates: $startDate-$endDate")
         android.util.Log.d("PoiRepository", "OpenAI Key configured: ${BuildConfig.OPENAI_API_KEY.isNotEmpty()}")
         android.util.Log.d("PoiRepository", "Google Places Key configured: ${BuildConfig.GOOGLE_PLACES_API_KEY.isNotEmpty()}")
 
         try {
-            // Call both APIs in parallel
-            val chatGptDeferred = async { getAttractionsFromChatGPT(regionName) }
-            val googlePlacesDeferred = async { getAttractionsFromGooglePlaces(regionName) }
+            // Call both APIs in parallel with user preferences
+            val chatGptDeferred = async { getAttractionsFromChatGPT(regionName, theme, members, startDate, endDate) }
+            val googlePlacesDeferred = async { getAttractionsFromGooglePlaces(regionName, theme, lat, lng) }
 
             val chatGptResults = try {
                 chatGptDeferred.await()
@@ -89,22 +96,60 @@ class PoiRepository @Inject constructor(
     }
 
     /**
-     * Get attraction recommendations from ChatGPT
+     * Get attraction recommendations from ChatGPT with user preferences
      */
-    private suspend fun getAttractionsFromChatGPT(regionName: String): List<PoiEntity> {
+    private suspend fun getAttractionsFromChatGPT(
+        regionName: String,
+        theme: String,
+        members: String,
+        startDate: Long,
+        endDate: Long
+    ): List<PoiEntity> {
         if (BuildConfig.OPENAI_API_KEY.isEmpty()) {
             android.util.Log.w("PoiRepository", "OpenAI API key not configured")
             return emptyList()
         }
 
         return try {
+            // Build context based on user preferences
+            val themeContext = when {
+                theme.contains("문화") -> "cultural attractions, museums, historical sites, art galleries"
+                theme.contains("액티브") -> "adventure activities, hiking, sports, outdoor experiences"
+                theme.contains("휴식") -> "relaxing places, spas, parks, peaceful spots, scenic viewpoints"
+                theme.contains("쇼핑") -> "shopping districts, markets, malls, local boutiques"
+                theme.contains("맛집") -> "food streets, food markets, culinary hotspots"
+                else -> "popular tourist attractions"
+            }
+
+            val groupContext = when (members.toIntOrNull() ?: 1) {
+                1 -> "suitable for solo travelers"
+                2 -> "romantic spots suitable for couples"
+                in 3..4 -> "family-friendly attractions"
+                else -> "group-friendly places with spacious areas"
+            }
+
+            val seasonContext = if (startDate > 0) {
+                val calendar = java.util.Calendar.getInstance()
+                calendar.timeInMillis = startDate
+                when (calendar.get(java.util.Calendar.MONTH)) {
+                    0, 1, 11 -> "winter season attractions (consider indoor options)"
+                    2, 3, 4 -> "spring season (cherry blossoms, outdoor activities)"
+                    5, 6, 7 -> "summer season (beaches, water activities, shade areas)"
+                    else -> "autumn season (fall foliage, outdoor sightseeing)"
+                }
+            } else "any season"
+
             val prompt = """
-                Recommend 5 must-visit attractions in $regionName.
+                Recommend 5 must-visit attractions in $regionName based on these traveler preferences:
+                - Travel themes: $theme ($themeContext)
+                - Group size: $members people ($groupContext)
+                - Season: $seasonContext
+
                 For each attraction, provide:
                 - name: attraction name
                 - category: one of (역사, 문화, 자연, 쇼핑, 전망대, 해변, 시장, 랜드마크)
                 - rating: a rating between 4.0 and 5.0
-                - description: brief description in Korean (one sentence)
+                - description: brief description in Korean explaining why it matches the preferences (one sentence)
 
                 Return ONLY a JSON array in this exact format:
                 [{"name":"...", "category":"...", "rating":4.5, "description":"..."}]
@@ -174,16 +219,33 @@ class PoiRepository @Inject constructor(
     }
 
     /**
-     * Get attractions from Google Places API
+     * Get attractions from Google Places API with theme filtering
      */
-    private suspend fun getAttractionsFromGooglePlaces(regionName: String): List<PoiEntity> {
+    private suspend fun getAttractionsFromGooglePlaces(
+        regionName: String,
+        theme: String,
+        lat: Double,
+        lng: Double
+    ): List<PoiEntity> {
         if (BuildConfig.GOOGLE_PLACES_API_KEY.isEmpty()) {
             android.util.Log.w("PoiRepository", "Google Places API key not configured")
             return emptyList()
         }
 
         return try {
-            val query = "$regionName tourist attractions"
+            // Build query based on theme
+            val themeKeyword = when {
+                theme.contains("문화") -> "museum cultural site"
+                theme.contains("액티브") -> "outdoor activity park"
+                theme.contains("휴식") -> "park garden scenic"
+                theme.contains("쇼핑") -> "shopping mall market"
+                theme.contains("맛집") -> "food market street"
+                else -> "tourist attraction"
+            }
+
+            val query = "$regionName $themeKeyword"
+            android.util.Log.d("PoiRepository", "Google Places query: $query")
+
             val response = googlePlacesApi.searchPlaces(
                 query = query,
                 apiKey = BuildConfig.GOOGLE_PLACES_API_KEY,

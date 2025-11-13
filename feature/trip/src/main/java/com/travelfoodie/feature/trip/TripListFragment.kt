@@ -320,18 +320,25 @@ class TripListFragment : Fragment() {
             val title = dialogBinding.editTripTitle.text.toString().trim()
             // Use selected place name from autocomplete, or fallback to text input
             val region = selectedPlaceName ?: dialogBinding.editRegion.text.toString().trim()
-            val members = dialogBinding.editMembers.text.toString().trim()
+            val members = dialogBinding.editMembers.text.toString().trim().ifEmpty { "1" }
             android.util.Log.d("TripListFragment", "Input - title: $title, region: $region, members: $members, coords: ($selectedPlaceLat, $selectedPlaceLng)")
 
-            // Get selected theme
-            val theme = when (dialogBinding.chipGroupTheme.checkedChipId) {
-                R.id.chip_active -> "액티브"
-                R.id.chip_culture -> "문화"
-                R.id.chip_relaxation -> "휴식"
-                R.id.chip_shopping -> "쇼핑"
-                R.id.chip_food -> "맛집 투어"
-                else -> "액티브"
+            // Get selected themes (multiple selection)
+            val selectedThemes = mutableListOf<String>()
+            for (chipId in dialogBinding.chipGroupTheme.checkedChipIds) {
+                val themeText = when (chipId) {
+                    R.id.chip_active -> "액티브"
+                    R.id.chip_culture -> "문화"
+                    R.id.chip_relaxation -> "휴식"
+                    R.id.chip_shopping -> "쇼핑"
+                    R.id.chip_food -> "맛집 투어"
+                    else -> null
+                }
+                if (themeText != null) {
+                    selectedThemes.add(themeText)
+                }
             }
+            val theme = if (selectedThemes.isEmpty()) "액티브" else selectedThemes.joinToString(",")
 
             // Validation
             when {
@@ -370,6 +377,7 @@ class TripListFragment : Fragment() {
                 startDate = startDateMillis,
                 endDate = endDateMillis,
                 theme = theme,
+                members = members,
                 regionName = region // Save region name for API regeneration
             )
 

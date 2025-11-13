@@ -86,23 +86,31 @@ class TripViewModel @Inject constructor(
                 tripRepository.insertRegion(region)
                 android.util.Log.d("TripViewModel", "Region created successfully")
 
-                // 3. Auto-generate 5 AI attractions for the region
+                // 3. Auto-generate 5 AI attractions for the region with user preferences
                 android.util.Log.d("TripViewModel", "Setting state: GeneratingAttractions")
                 _creationState.value = TripCreationState.GeneratingAttractions
-                android.util.Log.d("TripViewModel", "Generating attractions for regionId: $regionId, regionName: $regionName")
+                android.util.Log.d("TripViewModel", "Generating attractions for regionId: $regionId, regionName: $regionName, theme: ${trip.theme}, members: ${trip.members}")
                 val attractions = poiRepository.generateMockAttractions(
                     regionId = regionId,  // Use actual regionId
-                    regionName = regionName
+                    regionName = regionName,
+                    theme = trip.theme,
+                    members = trip.members,
+                    startDate = trip.startDate,
+                    endDate = trip.endDate,
+                    lat = lat,
+                    lng = lng
                 )
                 android.util.Log.d("TripViewModel", "Generated ${attractions.size} attractions for regionId: $regionId")
 
-                // 4. Auto-generate 10 restaurants for the region using actual coordinates
+                // 4. Auto-generate 10 restaurants for the region using actual coordinates and preferences
                 android.util.Log.d("TripViewModel", "Setting state: GeneratingRestaurants")
                 _creationState.value = TripCreationState.GeneratingRestaurants
-                android.util.Log.d("TripViewModel", "Generating restaurants for regionId: $regionId at ($lat, $lng)")
+                android.util.Log.d("TripViewModel", "Generating restaurants for regionId: $regionId at ($lat, $lng), members: ${trip.members}")
                 val restaurants = restaurantRepository.createMockRestaurants(
                     regionId = regionId,  // Use actual regionId
                     regionName = regionName,
+                    theme = trip.theme,
+                    members = trip.members,
                     lat = lat, // Use actual coordinates from Google Places
                     lng = lng
                 )

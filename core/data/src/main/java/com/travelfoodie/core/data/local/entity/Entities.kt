@@ -25,7 +25,8 @@ data class TripEntity(
     val title: String,
     val startDate: Long,
     val endDate: Long,
-    val theme: String,
+    val theme: String, // Comma-separated multiple themes: "액티브,문화,휴식"
+    val members: String = "1", // Number of travelers
     val regionName: String = "", // Store region name for API regeneration
     val createdAt: Long = System.currentTimeMillis()
 )

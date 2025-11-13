@@ -47,24 +47,24 @@
                 android:gravity="center"
                 android:layout_marginBottom="48dp" />
 
-            <!-- Google Sign In Button (Disabled until Firebase is configured) -->
+            <!-- Google Sign In Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_google_signin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Google로 로그인 (Firebase 설정 필요)"
-                android:textColor="@android:color/darker_gray"
+                android:text="Google로 로그인"
+                android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textAllCaps="false"
-                android:enabled="false"
+                android:enabled="true"
                 app:icon="@android:drawable/ic_menu_search"
                 app:iconTint="@null"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
                 app:cornerRadius="8dp"
-                app:strokeColor="#DDDDDD"
+                app:strokeColor="#4285F4"
                 app:strokeWidth="1dp"
-                app:backgroundTint="#F5F5F5"
+                app:backgroundTint="@android:color/white"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_marginBottom="12dp" />
 

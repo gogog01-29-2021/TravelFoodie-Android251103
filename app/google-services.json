@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "772589739359-m54vpv0kqd58thvhohb9ubt0ngse0vkb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.travelfoodie",
+            "certificate_hash": "fb0ca0af118127c3a821f211bbc8e22d5908b700"
+          }
+        },
+        {
           "client_id": "772589739359-vogj6ahda7ms8m5n3f448gssou8r32kc.apps.googleusercontent.com",
           "client_type": 3
         }

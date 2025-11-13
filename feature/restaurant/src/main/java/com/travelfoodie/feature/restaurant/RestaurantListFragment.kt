@@ -1,6 +1,7 @@
 package com.travelfoodie.feature.restaurant
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -136,6 +137,7 @@ class RestaurantListFragment : Fragment() {
                     return@launch
                 }
 
+                @SuppressLint("MissingPermission")
                 val location = fusedLocationClient.lastLocation.await()
                 if (location != null && currentRestaurants.isNotEmpty()) {
                     // Check if we're within 1km of any restaurant

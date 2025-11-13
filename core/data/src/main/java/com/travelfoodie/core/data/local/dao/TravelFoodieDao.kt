@@ -177,3 +177,66 @@ interface ReceiptDao {
     @Query("DELETE FROM receipts WHERE receiptId = :receiptId")
     suspend fun deleteReceiptById(receiptId: String)
 }
+
+@Dao
+interface ChatMessageDao {
+    @Query("SELECT * FROM chat_messages ORDER BY timestamp ASC")
+    fun getAllMessages(): Flow<List<ChatMessageEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMessage(message: ChatMessageEntity)
+
+    @Query("DELETE FROM chat_messages")
+    suspend fun deleteAllMessages()
+}
+
+@Dao
+interface FriendDao {
+    @Query("SELECT * FROM friends WHERE userId = :userId ORDER BY name ASC")
+    fun getFriendsByUser(userId: String): Flow<List<FriendEntity>>
+
+    @Query("SELECT * FROM friends WHERE userId = :userId AND contactType = :contactType")
+    fun getFriendsByType(userId: String, contactType: String): Flow<List<FriendEntity>>
+
+    @Query("SELECT * FROM friends WHERE friendId = :friendId")
+    suspend fun getFriendById(friendId: Long): FriendEntity?
+
+    @Query("SELECT * FROM friends WHERE userId = :userId AND contactValue = :contactValue")
+    suspend fun getFriendByContact(userId: String, contactValue: String): FriendEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFriend(friend: FriendEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFriends(friends: List<FriendEntity>)
+
+    @Update
+    suspend fun updateFriend(friend: FriendEntity)
+
+    @Delete
+    suspend fun deleteFriend(friend: FriendEntity)
+}
+
+@Dao
+interface TripInvitationDao {
+    @Query("SELECT * FROM trip_invitations WHERE tripId = :tripId")
+    fun getInvitationsByTrip(tripId: String): Flow<List<TripInvitationEntity>>
+
+    @Query("SELECT * FROM trip_invitations WHERE friendId = :friendId ORDER BY sentAt DESC")
+    fun getInvitationsByFriend(friendId: Long): Flow<List<TripInvitationEntity>>
+
+    @Query("SELECT * FROM trip_invitations WHERE invitationId = :invitationId")
+    suspend fun getInvitationById(invitationId: Long): TripInvitationEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertInvitation(invitation: TripInvitationEntity): Long
+
+    @Update
+    suspend fun updateInvitation(invitation: TripInvitationEntity)
+
+    @Delete
+    suspend fun deleteInvitation(invitation: TripInvitationEntity)
+
+    @Query("DELETE FROM trip_invitations WHERE tripId = :tripId")
+    suspend fun deleteInvitationsByTrip(tripId: String)
+}

@@ -1,10 +1,14 @@
 package com.travelfoodie.feature.trip
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +44,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var placesAdapter: PlacesAutocompleteAdapter
 
+    // Location permission launcher
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+        if (fineLocationGranted || coarseLocationGranted) {
+            enableMyLocation()
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "위치 권한이 필요합니다",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -74,13 +96,45 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val defaultLocation = LatLng(37.5665, 126.9780)
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10f))
 
-        // Enable location controls
+        // Enable zoom controls
         googleMap?.uiSettings?.isZoomControlsEnabled = true
-        googleMap?.uiSettings?.isMyLocationButtonEnabled = true
+
+        // Check and request location permission
+        checkLocationPermission()
 
         // Handle map clicks
         googleMap?.setOnMapClickListener { latLng ->
             onLocationSelected(latLng, "선택한 위치")
+        }
+    }
+
+    private fun checkLocationPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                enableMyLocation()
+            }
+            else -> {
+                // Request permission
+                locationPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        }
+    }
+
+    @Suppress("MissingPermission")
+    private fun enableMyLocation() {
+        try {
+            googleMap?.isMyLocationEnabled = true
+            googleMap?.uiSettings?.isMyLocationButtonEnabled = true
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         }
     }
 
@@ -192,17 +246,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // Save Button
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.editTripTitle.text.toString().trim()
-            val members = dialogBinding.editMembers.text.toString().trim()
+            val members = dialogBinding.editMembers.text.toString().trim().ifEmpty { "1" }
 
-            // Get selected theme
-            val theme = when (dialogBinding.chipGroupTheme.checkedChipId) {
-                R.id.chip_active -> "액티브"
-                R.id.chip_culture -> "문화"
-                R.id.chip_relaxation -> "휴식"
-                R.id.chip_shopping -> "쇼핑"
-                R.id.chip_food -> "맛집 투어"
-                else -> "액티브"
+            // Get selected themes (multiple selection)
+            val selectedThemes = mutableListOf<String>()
+            for (chipId in dialogBinding.chipGroupTheme.checkedChipIds) {
+                val themeText = when (chipId) {
+                    R.id.chip_active -> "액티브"
+                    R.id.chip_culture -> "문화"
+                    R.id.chip_relaxation -> "휴식"
+                    R.id.chip_shopping -> "쇼핑"
+                    R.id.chip_food -> "맛집 투어"
+                    else -> null
+                }
+                if (themeText != null) {
+                    selectedThemes.add(themeText)
+                }
             }
+            val theme = if (selectedThemes.isEmpty()) "액티브" else selectedThemes.joinToString(",")
 
             // Validation
             when {
@@ -233,6 +294,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 startDate = startDateMillis,
                 endDate = endDateMillis,
                 theme = theme,
+                members = members,
                 regionName = locationName
             )
 

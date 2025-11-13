@@ -165,3 +165,53 @@ data class NotifScheduleEntity(
     val type: String, // "D-7", "D-3", "D-0"
     val sent: Boolean = false
 )
+
+@Entity(
+    tableName = "friends",
+    foreignKeys = [
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["userId"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("userId")]
+)
+data class FriendEntity(
+    @PrimaryKey(autoGenerate = true) val friendId: Long = 0,
+    val userId: String, // Owner of this friend
+    val friendUserId: String?, // If friend is also a user in the app
+    val name: String,
+    val contactType: String, // "kakao", "phone", "email"
+    val contactValue: String, // KakaoTalk ID, phone number, or email
+    val profileImageUrl: String? = null,
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Entity(
+    tableName = "trip_invitations",
+    foreignKeys = [
+        ForeignKey(
+            entity = TripEntity::class,
+            parentColumns = ["tripId"],
+            childColumns = ["tripId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = FriendEntity::class,
+            parentColumns = ["friendId"],
+            childColumns = ["friendId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("tripId"), Index("friendId")]
+)
+data class TripInvitationEntity(
+    @PrimaryKey(autoGenerate = true) val invitationId: Long = 0,
+    val tripId: String,
+    val friendId: Long,
+    val status: String = "pending", // "pending", "accepted", "declined"
+    val sentAt: Long = System.currentTimeMillis(),
+    val respondedAt: Long? = null
+)

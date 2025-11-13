@@ -18,9 +18,11 @@ import com.travelfoodie.core.data.local.entity.*
         FavoriteEntity::class,
         NotifScheduleEntity::class,
         ReceiptEntity::class,
-        ChatMessageEntity::class
+        ChatMessageEntity::class,
+        FriendEntity::class,
+        TripInvitationEntity::class
     ],
-    version = 3, // Added ReceiptEntity and ChatMessageEntity
+    version = 4, // Added FriendEntity and TripInvitationEntity
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,6 +36,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun notifScheduleDao(): NotifScheduleDao
     abstract fun receiptDao(): ReceiptDao
     abstract fun chatMessageDao(): ChatMessageDao
+    abstract fun friendDao(): FriendDao
+    abstract fun tripInvitationDao(): TripInvitationDao
 
     companion object {
         @Volatile

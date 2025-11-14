@@ -62,6 +62,8 @@
     <string name="shake_not_available">여행지에 도착하면 사용할 수 있습니다</string>
     
     <!-- Notification -->
+    <string name="notif_trip_created_title">새 여행이 생성되었습니다! ✈️</string>
+    <string name="notif_trip_created_message">%s 여행이 생성되었습니다. 명소 %d개와 맛집 %d개를 확인해보세요!</string>
     <string name="notif_d7_title">여행까지 7일 남았어요!</string>
     <string name="notif_d7_message">%s님, %s 여행까지 일주일 남았습니다.</string>
     <string name="notif_d3_title">여행 준비를 시작해보세요</string>

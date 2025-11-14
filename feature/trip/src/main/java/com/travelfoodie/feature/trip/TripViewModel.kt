@@ -10,6 +10,7 @@ import com.travelfoodie.core.data.local.entity.TripEntity
 import com.travelfoodie.core.data.repository.PoiRepository
 import com.travelfoodie.core.data.repository.RestaurantRepository
 import com.travelfoodie.core.data.repository.TripRepository
+import com.travelfoodie.core.ui.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -131,6 +132,16 @@ class TripViewModel @Inject constructor(
                     restaurantsCount = restaurants.size
                 )
                 android.util.Log.d("TripViewModel", "SUCCESS - regionId: $regionId, attractionsCount: ${attractions.size}, restaurantsCount: ${restaurants.size}")
+
+                // 6. Show immediate notification about trip creation
+                android.util.Log.d("TripViewModel", "Showing trip creation notification")
+                NotificationHelper.showTripCreatedNotification(
+                    context = context,
+                    tripTitle = trip.title,
+                    attractionCount = attractions.size,
+                    restaurantCount = restaurants.size
+                )
+                android.util.Log.d("TripViewModel", "Trip creation notification displayed")
 
             } catch (e: Exception) {
                 android.util.Log.e("TripViewModel", "ERROR in createTripWithAutoGeneration: ${e.message}", e)
